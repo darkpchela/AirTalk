@@ -10,7 +10,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using AirTalk.Models.InsideModels;
+using AirTalk.Services;
 
 namespace AirTalk
 {
@@ -28,8 +30,21 @@ namespace AirTalk
         {
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<MainDbContext>(options => options.UseSqlServer(connection));
-            services.AddControllersWithViews();
+            services.AddTransient<UserCounterService>();
+            services.AddDistributedMemoryCache();
+            services.AddSession(options =>
+            {
+                options.Cookie.Name = ".AirTalk.UserSession";
+                options.Cookie.IsEssential = true;
+            });
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+               .AddCookie(options => //CookieAuthenticationOptions
+                {
+                   options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
+               });
+            //services.AddControllersWithViews();
             services.AddLogging();
+            services.AddMvc((options)=>options.EnableEndpointRouting=false).AddSessionStateTempDataProvider();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -48,17 +63,24 @@ namespace AirTalk
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            app.UseRouting();
+            //app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+            app.UseSession();
 
-            });
+            //app.UseEndpoints(endpoints =>
+            //{
+            //    endpoints.MapControllerRoute(
+            //        name: "default",
+            //        pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            //});
+            app.UseMvc((routes) => routes.MapRoute(
+                name: "default",
+                template: "{controller=Home}/{action=Index}/{id?}"
+            )) ;
         }
     }
 }

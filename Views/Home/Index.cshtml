@@ -2,29 +2,18 @@
 @{
     ViewData["Title"] = "Home Page";
 }
+@inject AirTalk.Services.UserCounterService counter
 <div class="form-group">
     <div>
         <img src="~/images/airTalkLogo.png" class="img-fluid text-center" />
     </div>
     <div>
-        <a asp-action="Registration">Registration form</a>
+        <a asp-action="Registration" asp-controller="Account">Registration form</a>
+        <a asp-action="Login" asp-controller="Account">Login</a>
     </div>
-    <form asp-action="SignIn">
-        <div>
-            <div>
-            <label>Sign Up</label>
-            </div>
-            <div> 
-            <label for="loginOrEmail">Login:</label><br />
-            <input asp-for="loginOrEmail" placeholder="Login/Email" /><span asp-validation-for="loginOrEmail"></span>
-            </div>
-            <div>
-            <label for="password">Password</label><br />
-            <input asp-for="password" placeholder="Password" /><span asp-validation-for="password"></span>
-            </div>
-            <button type="submit" class="btn-toolbar">Sign In</button>
-        </div>
-    </form>
+</div>
+<div>
+    <label>@counter.totalCount</label>
 </div>
 @section Scripts{
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>

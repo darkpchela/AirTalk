@@ -9,7 +9,9 @@ namespace AirTalk.Models.InsideModels
     {
         public int      id   { get; set; }
         public string   name { get; set; }
+        public string   body { get; set; }
         public DateTime creationTime  { get; set; }
         public int      userCreatorId { get; set; }
+        IEnumerable<string> tags { get; set; }
     }
 }

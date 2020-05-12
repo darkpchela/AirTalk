@@ -1,6 +1,6 @@
 using System;
 
-namespace AirTalk.Models.ViewModels
+namespace AirTalk.Models
 {
     public class ErrorViewModel
     {

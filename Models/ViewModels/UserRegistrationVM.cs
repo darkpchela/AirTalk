@@ -32,9 +32,9 @@ namespace AirTalk.Models.ViewModels
         [UIHint("Password")]
         [Display(Name = "Confirm Password")]
         public string confirmPassword { get; set; }
-        public User GetDbModel()
+        public UserModel GetDbModel()
         {
-            User user = new User {login=this.login,
+            UserModel user = new UserModel {login=this.login,
             email=this.email, password=this.password};
             return user;
         }

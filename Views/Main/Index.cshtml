@@ -1,0 +1,53 @@
+﻿@model AirTalk.Models.ViewModels.MainIndexViewModel
+@{
+    ViewData["Title"] = "Main";
+}
+@inject AirTalk.Services.UserCounterService counter
+@section User
+{ 
+    <div>
+        <label asp-for="currentUser.login">@Model.currentUser.login</label><br />
+        <label asp-for="currentUser.rigths">@Model.currentUser.rigths.ToString()</label>
+    </div>
+}
+@section NavElements
+{
+<a>Modify account</a>
+<a asp-action="CreateTheme" asp-controller="Main">Create theme</a>    
+<a asp-action="Logout" asp-controller="Account">Log Out</a>
+}
+    <div class="card-body"> 
+        <div class="card">
+            <label>TOP 10: </label>
+            @{ 
+                foreach(var theme in Model.allThemes)
+                {
+                    <a asp-action="SelectTheme" asp-controller="Main" asp-route-id=@theme.id>@theme.name</a>
+                }
+            }
+        </div>
+        <div class="card">
+            <label>Here current theme</label>
+        </div>
+        <div class="card">
+            <label>Here chatbox</label>
+        </div>
+        <div class="card">
+        <label>Online: @counter.onlineCount</label>
+        </div>
+        <div class="card">
+            <label>Total count:@counter.totalCount</label>
+        </div>
+    </div>
+@{ 
+    if (Model.currentTheme!=null)
+    {
+        <label>Current theam is: @Model.currentTheme.name</label>
+    }
+    else
+    {
+        <label>Choose the theme!</label>
+    }
+
+}
+

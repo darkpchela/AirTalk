@@ -6,17 +6,20 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using AirTalk.Models;
 using AirTalk.Models.ViewModels;
 using AirTalk.Models.InsideModels;
+using AirTalk.Services;
+using Microsoft.AspNetCore.Http;
 
 namespace AirTalk.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        MainDbContext db;
-
-        public HomeController(ILogger<HomeController> logger, MainDbContext dbContext)
+        private readonly MainDbContext db;
+        
+        public HomeController(ILogger<HomeController> logger, MainDbContext dbContext, UserCounterService userCounter)
         {
             _logger = logger;
             db = dbContext;
@@ -24,6 +27,7 @@ namespace AirTalk.Controllers
 
         public IActionResult Index()
         {
+            RedirectToAction("Index", "Main");
             return View();
         }
 
@@ -76,24 +80,27 @@ namespace AirTalk.Controllers
             else
                 return Json(false);
         }
-        [HttpPost]
-        public IActionResult SignIn(UserSignInVM user)
-        {
-            var checker = db.users.FirstOrDefault(u => u.login == user.loginOrEmail || u.email == user.loginOrEmail);
-            if (checker==null)
-            {
-                ModelState.AddModelError(nameof(user.loginOrEmail), "Account is not exists");
-            }
-            else
-            if(user.password!=checker.password)
-            {
-                ModelState.AddModelError(nameof(user.password), "Incorrect password");
-            }
+        //[HttpPost]
+        //public IActionResult Login(UserSignInVM user)
+        //{
+        //    var checker = db.users.FirstOrDefault(u => u.login == user.loginOrEmail || u.email == user.loginOrEmail);
+        //    if (checker==null)
+        //    {
+        //        ModelState.AddModelError(nameof(user.loginOrEmail), "Account is not exists");
+        //    }
+        //    else
+        //    if(user.password!=checker.password)
+        //    {
+        //        ModelState.AddModelError(nameof(user.password), "Incorrect password");
+        //    }
 
-            if (ModelState.IsValid)
-                return View("Main");
-            else
-                return View("Index");
-        }
+        //    if (ModelState.IsValid)
+        //    {
+        //        HttpContext.Session.SetString(sessionKey, checker.id.ToString());
+        //        return RedirectToAction("Index", "Main");
+        //    }
+        //    else
+        //        return View("Index");
+        //}
     }
 }

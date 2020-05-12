@@ -11,8 +11,10 @@
     <header>
         <nav class="navbar">
             <div class="container">
+             @RenderSection("User", required:false)
             <a asp-controller="Home" asp-action="Index">Home</a>
             <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+             @RenderSection("NavElements", required:false)
             </div>
             </nav>
     </header>

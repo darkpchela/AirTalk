@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AirTalk.Models.InsideModels
 {
-    public class User
+    public class UserModel
     {
         public int id { get; set; }
         public string firstName { get; set; }
@@ -16,5 +16,6 @@ namespace AirTalk.Models.InsideModels
         public string email     { get; set; }
         public string password  { get; set; }
         public UserAccountRigths rigths { get; set; }
+        public bool online  { get; set; }
     }
 }

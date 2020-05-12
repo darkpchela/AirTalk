@@ -1,0 +1,26 @@
+﻿@model AirTalk.Models.ViewModels.UserSignInVM
+@{
+    ViewData["Title"] = "Index";
+}
+
+<form asp-controller="Account" asp-action="Login" asp-antiforgery="true">
+    <div>
+        <div>
+            <label>Sign Up</label>
+        </div>
+        <div>
+            <label for="loginOrEmail">Login:</label><br />
+            <input asp-for="loginOrEmail" placeholder="Login/Email" /><span asp-validation-for="loginOrEmail"></span>
+        </div>
+        <div>
+            <label for="password">Password</label><br />
+            <input asp-for="password" placeholder="Password" /><span asp-validation-for="password"></span>
+        </div>
+        <button type="submit" class="btn-toolbar">Sign In</button>
+    </div>
+</form>
+@section Scripts
+{
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}
