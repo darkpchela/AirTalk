@@ -1,0 +1,50 @@
+
+.btn-block{
+    margin-top: 1%;
+}
+
+.container{
+    position: relative;
+}
+.main-block{
+    height: 30%;
+    width: 30%;
+
+    position: fixed;
+    left: 50%;
+    top: 30%;
+    transform: translate(-50%, -20%);
+}
+.flex-column{
+    width: 50%;
+    display: flex;
+    flex-flow: column nowrap;
+}
+.item{
+    flex: 1;
+    width: 100%;
+    text-align: center;
+}
+.item button{
+    width: 50%;
+    height: 100%;
+    text-align: center;
+    padding: 1%;
+    background-color: rgba(94, 7, 7, 0.548);
+    color: rgba(255, 255, 255, 0.719);
+    font: normal small-caps 130%  'Franklin Gothic Medium';
+    border: 3px outset rgba(7, 0, 0, 0.425);
+}
+.item button a {
+        color: inherit;
+        font: inherit;
+    }
+h1.greeting{
+    text-align: center;
+    font-size: 500% ;
+    font-weight: 600;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-style: normal;
+    font-variant: small-caps;
+    color:rgba(5, 5, 5, 0.6);
+}

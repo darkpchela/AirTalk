@@ -11,7 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using AirTalk.Models.InsideModels;
+using AirTalk.Models.DBModels;
 using AirTalk.Services;
 
 namespace AirTalk
@@ -44,7 +44,10 @@ namespace AirTalk
                });
             //services.AddControllersWithViews();
             services.AddLogging();
-            services.AddMvc((options)=>options.EnableEndpointRouting=false).AddSessionStateTempDataProvider();
+            services.AddControllersWithViews();
+            services.AddSignalR(options=> {
+                options.EnableDetailedErrors = true;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -62,25 +65,16 @@ namespace AirTalk
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
-            //app.UseRouting();
-
+            app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseSession();
-
-            //app.UseEndpoints(endpoints =>
-            //{
-            //    endpoints.MapControllerRoute(
-            //        name: "default",
-            //        pattern: "{controller=Home}/{action=Index}/{id?}");
-
-            //});
-            app.UseMvc((routes) => routes.MapRoute(
-                name: "default",
-                template: "{controller=Home}/{action=Index}/{id?}"
-            )) ;
+            app.UseEndpoints(endpoints => {
+                endpoints.MapHub<ChatHub>("/chat");
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}");
+            });
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
-using AirTalk.Models.InsideModels;
+using AirTalk.Models.DBModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication;
 

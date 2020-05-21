@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AirTalk.Models.InsideModels
+namespace AirTalk.Models.DBModels
 {
     public class UserModel
     {
@@ -17,5 +17,6 @@ namespace AirTalk.Models.InsideModels
         public string password  { get; set; }
         public UserAccountRigths rigths { get; set; }
         public bool online  { get; set; }
+        public string icon { get; set; }
     }
 }

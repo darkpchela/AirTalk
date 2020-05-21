@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
-using AirTalk.Models.InsideModels;
+using AirTalk.Models.DBModels;
 
 namespace AirTalk.Models.ViewModels
 {

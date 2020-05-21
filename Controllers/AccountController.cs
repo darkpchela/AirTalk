@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using AirTalk.Models.InsideModels;
+using AirTalk.Models.DBModels;
 using AirTalk.Models.ViewModels;
 using Microsoft.AspNetCore.Session;
 using Microsoft.EntityFrameworkCore;
@@ -53,8 +53,8 @@ namespace AirTalk.Controllers
             {
                 //HttpContext.Session.SetString(sessionKey, checker.id.ToString());
                 await Authenticate(user.loginOrEmail);
-                //HttpContext.Session.SetInt32("id", checker.id);
-                //HttpContext.Session.SetString("login", checker.login);
+                HttpContext.Session.SetInt32("id", checker.id);
+                HttpContext.Session.SetString("login", checker.login);
                 //HttpContext.Session.SetString("rights",checker.rigths.ToString());
                 return RedirectToAction("Index", "Main");
             }             

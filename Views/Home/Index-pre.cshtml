@@ -1,0 +1,21 @@
+﻿@model AirTalk.Models.ViewModels.UserSignInVM;
+@{
+    ViewData["Title"] = "Home Page";
+}
+@inject AirTalk.Services.UserCounterService counter
+<div class="form-group">
+    <div>
+        <img src="~/images/airTalkLogo.png" class="img-fluid text-center" />
+    </div>
+    <div>
+        <a asp-action="Registration" asp-controller="Account">Registration form</a>
+        <a asp-action="Login" asp-controller="Account">Login</a>
+    </div>
+</div>
+<div>
+    <label>@counter.totalCount</label>
+</div>
+@section Scripts{
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}

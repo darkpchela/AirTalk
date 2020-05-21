@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using AirTalk.Models;
 using AirTalk.Models.ViewModels;
-using AirTalk.Models.InsideModels;
+using AirTalk.Models.DBModels;
 using AirTalk.Services;
 using Microsoft.AspNetCore.Http;
 

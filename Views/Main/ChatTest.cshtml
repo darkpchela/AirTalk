@@ -1,0 +1,49 @@
+﻿@{
+    ViewData["Title"] = "ChatTest";
+}
+<h1>ChatTest</h1>
+
+<form method="post">
+    <input type="text" name="product" id="productField" />
+    <input type="submit" value="Отправить" id="submitForm" />
+</form>
+
+<div id="notify"></div>
+
+<script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+<script>
+    const hubConnection = new signalR.HubConnectionBuilder()
+        .withUrl("/chat")
+        .build();
+    let connectionId = "";
+    document.getElementById("submitForm")
+        .addEventListener("click", function (e) {
+            e.preventDefault();
+
+            const data = new FormData();
+            data.append("product", document.getElementById("productField").value);
+            data.append("connectionId", connectionId);
+
+            fetch("/Main/Create", {
+                method: "POST",
+                body: data
+            })
+                .catch(error => console.error("Error: ", error));
+        });
+    // получение сообщения от сервера
+    hubConnection.on("Notify", function (message) {
+
+        // создает элемент <p> для сообщения пользователя
+        let elem = document.createElement("p");
+        elem.appendChild(document.createTextNode(message));
+
+        document.getElementById("notify").appendChild(elem);
+
+    });
+    hubConnection.start().then(() => {
+        // после соединения получаем id подключения
+        console.log(hubConnection.connectionId);
+        connectionId = hubConnection.connectionId;
+    });
+</script>
+

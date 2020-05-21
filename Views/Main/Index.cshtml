@@ -1,53 +1,118 @@
-﻿@model AirTalk.Models.ViewModels.MainIndexViewModel
-@{
-    ViewData["Title"] = "Main";
-}
-@inject AirTalk.Services.UserCounterService counter
-@section User
-{ 
-    <div>
-        <label asp-for="currentUser.login">@Model.currentUser.login</label><br />
-        <label asp-for="currentUser.rigths">@Model.currentUser.rigths.ToString()</label>
-    </div>
-}
-@section NavElements
-{
-<a>Modify account</a>
-<a asp-action="CreateTheme" asp-controller="Main">Create theme</a>    
-<a asp-action="Logout" asp-controller="Account">Log Out</a>
-}
-    <div class="card-body"> 
-        <div class="card">
-            <label>TOP 10: </label>
-            @{ 
-                foreach(var theme in Model.allThemes)
+﻿@model MainInfoViewModel;
+
+<div>
+    <nav class="container-nav">
+        <a class="btn-simple " asp-action="Index">Home</a>
+        <a class="btn-simple" href="#">About</a>
+        <a class="btn-simple" asp-action="ChatTest">ChatTEst</a>
+        <
+        <a class="btn-simple" asp-action="CreateTheme">Create airTheme</a>
+        <a class="btn-simple" asp-action="SelectTheme">Select airTheme</a>
+        <a class="btn-simple">Account Settings</a>
+        <a class="btn-simple" asp-controller="Account" asp-action="LogOut">LogOut</a>
+    </nav>
+</div>
+<div class="container">
+    <div class="test1 sidebar">
+        <div class="other">
+            @{ if (Model.currentTheme == null)
                 {
-                    <a asp-action="SelectTheme" asp-controller="Main" asp-route-id=@theme.id>@theme.name</a>
+                    <label>Empty</label>
+                }
+                else
+                {
+                    <label>@Model.currentTheme.name</label>
                 }
             }
         </div>
-        <div class="card">
-            <label>Here current theme</label>
-        </div>
-        <div class="card">
-            <label>Here chatbox</label>
-        </div>
-        <div class="card">
-        <label>Online: @counter.onlineCount</label>
-        </div>
-        <div class="card">
-            <label>Total count:@counter.totalCount</label>
+        <div class="user-block">
+            <label>@Model.currentUser.login</label>
+            <img src="" alt="Icon">
         </div>
     </div>
-@{ 
-    if (Model.currentTheme!=null)
-    {
-        <label>Current theam is: @Model.currentTheme.name</label>
-    }
-    else
-    {
-        <label>Choose the theme!</label>
-    }
+    <div class="test2 chatbox">
+        <div class="chat-view">
+            @{ if (Model.currentTheme==null)
+                {
+                    <div class="message">
+                        <span>Choose the theme to start airTalking!</span>
+                    </div>
+                }
+                else
+                {
+                    foreach (var mes in Model.messages)
+                    {
+                        <div class="message">
+                            <label>@mes.userSenderId.</label>
+                        </div>
+                    }
+                }
+            }
+            <div class="message">
+                <label for="">Tom:</label>
+                <span>Hello!</span>
+            </div>
+            <div class="message">
+                <label for="">Andrew:</label>
+                <span> Hi!111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111x</span>
+            </div>
+        </div>
+        <div>
+            <form method="post">
+                <textarea class="" name="" id="" cols="30" rows="6"></textarea>
+                <div><button type="submit" id="btnSend">Send</button></div>
+            </form>
+        </div>
+    </div>
+    <div class="test3 themebox">
+        @{
+            if (Model.currentTheme != null)
+            {
+                <div>
+                    <header>
+                        @Model.currentTheme.name
+                    </header>
+                    @*<img src="img/airTalkLogo.png">*@
+                </div>
+                <div class="theme-text">
+                    @Model.currentTheme.body
+                </div>
+                <div class="theme-container-voters">
+                    <button class="btn-simple">Like</button>
+                    <button class="btn-simple">Add to favorites</button>
+                    <button class="btn-simple">Dislike</button>
+                </div>
+            }
+        }
+    </div>
+</div>
+@section Scripts{
+<script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+<script src="~/js/chat.js"></script>
+<script>    
 
-}
 
+    const hubConnection = new signalR.HubConnectionBuilder()
+        .withUrl("/chat")
+        .build();
+    let connectionId = "";
+    document.getElementById("btnSend")
+        .addEventListener("click", function (e) {
+            e.preventDefault();
+
+            const data = new FormData();
+            data.append("product", document.getElementById("productField").value);
+            data.append("connectionId", connectionId);
+
+            fetch("/Main/Create", {
+                method: "POST",
+                body: data
+            })
+                .catch(error => console.error("Error: ", error));
+        });
+    hubConnection.on
+
+
+
+</script>
+ }
