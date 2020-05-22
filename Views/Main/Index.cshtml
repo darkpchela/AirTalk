@@ -1,11 +1,10 @@
-﻿@model MainInfoViewModel;
+﻿@model MainInfoViewModel
 
 <div>
     <nav class="container-nav">
         <a class="btn-simple " asp-action="Index">Home</a>
         <a class="btn-simple" href="#">About</a>
         <a class="btn-simple" asp-action="ChatTest">ChatTEst</a>
-        <
         <a class="btn-simple" asp-action="CreateTheme">Create airTheme</a>
         <a class="btn-simple" asp-action="SelectTheme">Select airTheme</a>
         <a class="btn-simple">Account Settings</a>
@@ -31,8 +30,8 @@
         </div>
     </div>
     <div class="test2 chatbox">
-        <div class="chat-view">
-            @{ if (Model.currentTheme==null)
+        <div class="chat-view" id="chat">
+            @{ if (Model.currentTheme == null)
                 {
                     <div class="message">
                         <span>Choose the theme to start airTalking!</span>
@@ -59,7 +58,7 @@
         </div>
         <div>
             <form method="post">
-                <textarea class="" name="" id="" cols="30" rows="6"></textarea>
+                <textarea class="" name="" id="textBox" cols="30" rows="6"></textarea>
                 <div><button type="submit" id="btnSend">Send</button></div>
             </form>
         </div>
@@ -86,33 +85,9 @@
         }
     </div>
 </div>
-@section Scripts{
-<script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+
+@section Scripts
+{
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
 <script src="~/js/chat.js"></script>
-<script>    
-
-
-    const hubConnection = new signalR.HubConnectionBuilder()
-        .withUrl("/chat")
-        .build();
-    let connectionId = "";
-    document.getElementById("btnSend")
-        .addEventListener("click", function (e) {
-            e.preventDefault();
-
-            const data = new FormData();
-            data.append("product", document.getElementById("productField").value);
-            data.append("connectionId", connectionId);
-
-            fetch("/Main/Create", {
-                method: "POST",
-                body: data
-            })
-                .catch(error => console.error("Error: ", error));
-        });
-    hubConnection.on
-
-
-
-</script>
- }
+}

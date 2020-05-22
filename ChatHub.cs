@@ -9,6 +9,11 @@ namespace AirTalk
 {
     public class ChatHub : Hub
     {
+        public async Task Create(string product, string connectionId)
+        {
+            await Clients.AllExcept(connectionId).SendAsync("Notify", $"Добавлено: {product} - {DateTime.Now.ToShortTimeString()}");
+            await Clients.Client(connectionId).SendAsync("Notify", $"Ваш товар добавлен!");
+        }
 
     }
 }

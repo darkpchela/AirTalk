@@ -8,7 +8,7 @@
     @{
         foreach(var t in Model.allThemes)
         {
-            <li><a asp-action="SelectTheme" asp- asp-route-id=@t.id>@t.name</a></li>
+            <li><a asp-action="SelectTheme" asp-route-id="@t.id">@t.name</a></li>
         }
     }
 </ul>

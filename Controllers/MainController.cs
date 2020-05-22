@@ -15,22 +15,31 @@ namespace AirTalk.Controllers
     [Authorize]
     public class MainController : Controller
     {
-        private readonly IHubContext<ChatHub> hubContext;
         private readonly MainDbContext db;
         private readonly ILogger<MainController> logger;
         private MainInfoViewModel mainVM;
-        public MainController(MainDbContext db, ILogger<MainController> logger, IHubContext<ChatHub> hubContext)
+
+        public MainController(MainDbContext db, ILogger<MainController> logger)
         {
-            this.hubContext = hubContext;
             this.db = db;
             this.logger = logger;
         }
-        [HttpGet]
-        public IActionResult Index()
+
+    
+        [Route("Main/Index/{id?}")]
+        public IActionResult Index(int? id)
         {
             mainVM = new MainInfoViewModel(this.db);
+            if (id!=null&&id>0&&db.themes.Any(t=>t.id==id))
+            {
+                HttpContext.Session.SetInt32("currentThemeId", id.Value);
+                mainVM.currentTheme = db.themes.FirstOrDefault(t => t.id == HttpContext.Session.GetInt32("currentThemeId"));
+            }
+            else
+            {
+                HttpContext.Session.SetInt32("currentThemeId", -1);
+            }
             mainVM.currentUser = this.db.users.FirstOrDefault(u => u.login == User.Identity.Name);
-            mainVM.currentTheme = db.themes.FirstOrDefault(t => t.id == HttpContext.Session.GetInt32("currentThemeId"));
 
             return View(mainVM);
         }
@@ -50,6 +59,7 @@ namespace AirTalk.Controllers
             if (db.themes.FirstOrDefault(t=>t.id==id)!=null)
             {
                 HttpContext.Session.SetInt32("currentThemeId", id.Value);
+                return Redirect("~/Main/Index/" + id);
             }
             return RedirectToAction("Index");
         }
@@ -77,20 +87,12 @@ namespace AirTalk.Controllers
                 RedirectToAction("SelectTheme", themeId);
 
             }
-            return View(themeViewModel);
+            return View();
         }
 
         public IActionResult ChatTest()
         {
             return View();
         }
-
-        [HttpPost]
-        public async Task Create(string product, string connectionId)
-        {
-            await hubContext.Clients.AllExcept(connectionId).SendAsync("Notify", $"Добавлено: {product} - {DateTime.Now.ToShortTimeString()}");
-            await hubContext.Clients.Client(connectionId).SendAsync("Notify", $"Ваш товар добавлен!");
-        }
-
     }
 }

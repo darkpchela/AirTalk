@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using AirTalk.Models.DBModels;
 using AirTalk.Services;
+using Microsoft.AspNetCore.Http;
 
 namespace AirTalk
 {
@@ -51,7 +52,7 @@ namespace AirTalk
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Program> logger)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Program> logger, MainDbContext db)
         {
             if (env.IsDevelopment())
             {
@@ -69,11 +70,15 @@ namespace AirTalk
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseSession();
-            app.UseEndpoints(endpoints => {
+            //app.UseMiddleware<ChatProviderMiddleware>();
+            app.UseEndpoints(endpoints =>
+            {
                 endpoints.MapHub<ChatHub>("/chat");
+            });
+            app.UseEndpoints(endpoints => {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }
