@@ -1,10 +1,8 @@
 ﻿"use strict";
 
-import { signalR } from "./signalr/dist/browser/signalr";
-
-//var hubConnection = new signalR.HubConnectionBuilder().WithUrl("/chat").Build();
-var hubConnection = new signalR.
+const hubConnection = new signalR.HubConnectionBuilder().withUrl("/chat").build();
 let connectionId = "";
+
 document.getElementById("btnSend").addEventListener("click", function (e) {
     e.preventDefault();
     let data = new FormData();

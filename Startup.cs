@@ -32,6 +32,7 @@ namespace AirTalk
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<MainDbContext>(options => options.UseSqlServer(connection));
             services.AddTransient<UserCounterService>();
+            services.AddSingleton<ChatLogger>();
             services.AddDistributedMemoryCache();
             services.AddSession(options =>
             {

@@ -58,6 +58,7 @@
         </div>
         <div>
             <form method="post">
+                <input id="userName" value="@Model.currentUser.login" />
                 <textarea class="" name="" id="textBox" cols="30" rows="6"></textarea>
                 <div><button type="submit" id="btnSend">Send</button></div>
             </form>
@@ -68,6 +69,7 @@
             if (Model.currentTheme != null)
             {
                 <div>
+                    @*<input id="group" value="@Model.currentTheme.id" />*@
                     <header>
                         @Model.currentTheme.name
                     </header>
@@ -88,6 +90,51 @@
 
 @section Scripts
 {
-<script src="~/js/signalr/dist/browser/signalr.js"></script>
-<script src="~/js/chat.js"></script>
+    <script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+    @*<script src="~/js/chat.js"></script>*@
+    @{
+        if (Model.currentTheme != null)
+        {
+            <script>
+                "use strict";
+
+                const hubConnection = new signalR.HubConnectionBuilder().withUrl("/chat").build();
+                let connectionId = "";
+
+                document.getElementById("btnSend").addEventListener("click", function (e) {
+                    e.preventDefault();
+                    let message = document.getElementById("textBox").value;
+                    let userName = document.getElementById("userName").value;
+                    //let group = document.getElementById("group").value;
+                    console.log(userName);
+                    hubConnection.invoke("PublicSingle", userName, message, /*group,*/ connectionId);
+                });
+
+                hubConnection.on("GetMessage", function (userName, message) {
+
+                    console.log("Getting message");
+
+                    let elemName = document.createElement("label");
+                    elemName.appendChild(document.createTextNode(userName + ': '));
+                    let elemMessage = document.createElement("span");
+                    elemMessage.appendChild(document.createTextNode(message));
+                    let elem = document.createElement("div");
+                    elem.classList.add("message");
+                    elem.append(elemName);
+                    elem.append(elemMessage);
+                    document.getElementById("chat").appendChild(elem);
+
+                    console.log("Getting end");
+                });
+
+
+                hubConnection.start().then(() => {
+                    // после соединения получаем id подключения
+                    console.log(hubConnection.connectionId);
+                    connectionId = hubConnection.connectionId;
+                });
+            </script>
+        }
+    }
+
 }
