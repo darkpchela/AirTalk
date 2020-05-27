@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="utf-8">
+        <title>airTalk Home</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/consoleStyle.css">
+    </head>
+
+    <body>
+        <div class="toolbar">
+        </div>
+        <div class="container-console">
+            <div class="console-header font-medium">
+                <div class="logo txt-console-orange">Terminal: </div>
+                <div class="user">unsigned:~</div>
+            </div>
+            <div id="output" class="console-output txt-console-orange font-medium">
+                <div>~ Welcome to airTalk!</div>
+            </div>
+            <div class="console-input-container">
+                <div class="sidebar">
+
+                </div>
+                <div class="keyboard">
+                    <textarea id="input" rows="1" class="txt-console-bg-gray font-medium"></textarea>
+                </div>
+                <div class="sidebar">
+
+                </div>
+            </div>
+        </div>
+        <script src="js/console-cmd-line.js"></script>
+        <script src="js/jquery-3.5.1.js"></script>
+    </body>
+    
+</html>
+<script>
+    let addTextToConsole = function(text){
+        let textDiv= document.createElement("div");
+        let innerText = document.createTextNode('~ '+text);
+        textDiv.append(innerText);
+        $("#output").append(textDiv);
+    };
+    $('#input').keypress(function(e){
+        if(e.keyCode==13)
+        {
+            e.preventDefault();
+            addTextToConsole($(this).val());
+            $(this).val('');
+            
+            
+        }
+    });
+</script>

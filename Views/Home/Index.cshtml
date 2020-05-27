@@ -1,17 +1,69 @@
 ﻿
-        <div class="container">
-            <div class="main-block flex-column">
-                <div class="item-sm">
-                    <h1 class="greeting">Welcome to airTalk!</h1>
-                </div>
-                <div class="item">
-                    <button class=""><a asp-action="Login" asp-controller="Account">Sign In</a></button>
-                </div>
-                <div class="item">
-                        <button class=""><a asp-action="Registration" asp-controller="Account">Regist</a></button>
-                </div>
-                <div class="item" >
-                        <button asp-action="Index" asp-controller="Home">About</button>
-                </div>
-            </div>
+<div class="toolbar">
+</div>
+<div class="container-console">
+    <div class="console-header font-medium">
+        <div class="logo txt-console-orange">Terminal: </div>
+        <div class="user">unsigned:~</div>
+    </div>
+    <div id="output" class="console-output txt-console-orange font-medium">
+        <div>~ Welcome to airTalk!</div>
+    </div>
+    <div class="console-input-container">
+        <div class="sidebar">
+
         </div>
+        <div class="keyboard">
+            <textarea id="input" rows="1" class="txt-console-bg-gray font-medium"></textarea>
+        </div>
+        <div class="sidebar">
+
+        </div>
+    </div>
+</div>
+
+
+@section Scripts{
+    <script src="~/AirTalk(Console style)/js/jquery-3.5.1.js"></script>
+    <script>
+
+        let addTextToConsole = function (text) {
+            let textDiv = document.createElement("div");
+            let innerText = document.createTextNode('~ ' + text);
+            textDiv.append(innerText);
+            $("#output").append(textDiv);
+        };
+
+        $('#input').keypress(function (e) {
+            if (e.keyCode == 13) {
+                let cmd = $(this).val();
+                e.preventDefault();
+                addTextToConsole(cmd);
+                $(this).val('');
+                sendCmd(cmd);
+            }
+        });
+
+        let sendCmd = function (cmd) {
+            $.ajax({
+                type: "POST",
+                url: "Terminal/InitializeCommand",
+                data: { request: cmd },
+                dataType: "text",
+                beforeSend: function () {
+                    $('#input').prop('disabled', true);
+                },
+                complete: function (req) {
+                    $('#input').prop('disabled', false);
+                    $('#input').focus();
+                },
+                success: function (msg) {
+                    alert(msg);
+                },
+                error: function (req, status, error) {
+                    addTextToConsole("~error");
+                }
+            });
+        }
+    </script>
+}

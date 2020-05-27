@@ -78,5 +78,24 @@ namespace AirTalk.Controllers
                 ClaimsIdentity.DefaultRoleClaimType);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
         }
+
+        [AcceptVerbs("Get", "Post")]
+        public IActionResult CheckLogin(string login)
+        {
+            var checker = db.users.FirstOrDefault(u => u.login == login);
+            if (checker == null)
+                return Json(true);
+            else
+                return Json(false);
+        }
+
+        public IActionResult CheckEmail(string email)
+        {
+            var checker = db.users.FirstOrDefault(u => u.email == email);
+            if (checker == null)
+                return Json(true);
+            else
+                return Json(false);
+        }
     }
 }

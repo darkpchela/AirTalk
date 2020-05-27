@@ -1,0 +1,163 @@
+*{
+    box-sizing: border-box;
+    font-family: 'Jura';
+}
+html, body {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    margin: 0%;
+}
+textarea:focus, input:focus{
+    outline: none;
+}
+.font-small{
+    font-size: 1.25vmin;
+}
+.font-medium{
+    font-size: 2.5vmin;
+}
+.font-big{
+    font-size: 5vmin;
+}
+.toolbar{
+    position: fixed;
+    left: 0%;
+    
+    display: flex;
+    flex-flow: column nowrap;
+    justify-items: center;
+    align-items: center;
+    height: 100%;
+    width: 5%;
+    float: left;
+    background: linear-gradient(45deg, #292929 25%,
+     transparent 25%, transparent 75%, #292929 75%),
+      linear-gradient(45deg, #292929 25%, transparent 25%,
+       transparent 75%, #292929 75%) 0.1875em 0.1875em, radial-gradient(at 50% 0, #484847, #090909);
+    background-size: 0.375em 0.375em,
+     0.375em 0.375em, 100% 100%;
+}
+.toolbar .toolbar-button{
+    flex: 1;
+    border: 2px solid springgreen;
+    margin-top: 10px;
+    width: 80%;
+    
+}
+.toolbar-button :active{
+
+}
+
+.toolbar-button :disabled{
+
+}
+.container-console{
+    right: 0%;
+    position: absolute;
+    width: 95%;
+    height: 100%;
+    margin: auto auto;
+    background-color: #171624;
+}
+
+.container-console .console-header{
+    display: flex;
+    flex-flow: row nowrap;
+    justify-items: flex-start;
+    background-color: #3d3d3d;
+    min-height: 4vmin;
+    width: 100%;
+    align-items: center;
+    padding: 0.5vmin;
+    border-radius: 5px;
+    border: 2px solid darkgoldenrod;
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    
+}
+.console-header .logo{
+
+    color: darkgoldenrod;
+    justify-self: left;
+}
+.console-header .user{
+    color: darkgray;
+    justify-self: right;
+    margin-left: 1vmin;
+}
+.container-console .console-output{
+    width: 100%;
+}
+.container-console .console-input-container{
+    display: flex;
+    flex-flow: row nowrap;
+    position: absolute;
+    min-height: 10%;
+    height: 25vmin;
+    bottom: 0px;
+    width: 100%;
+}
+.console-input-container .keyboard{
+    display: block;
+    flex: 8;
+}
+.keyboard textarea{
+    padding: 2%;
+    resize: none;
+    width: 100%;
+    height: 100%;
+    border: 1px solid darkgoldenrod;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom: none;
+    background-color:rgba(255, 255, 255, 0.10);
+    color: darkgray;
+}
+.console-input-container .sidebar{
+    flex: 3;
+}
+
+.txt-console-orange{
+    animation-name: clr-orange-bloom;
+    animation-duration:  3s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+.txt-console-bg-gray{
+    animation-timing-function: ease-in;
+    animation-name: bg-clr-gray-bloom-es;
+    animation-duration:  10s;
+    animation-iteration-count: infinite;
+}
+@keyframes clr-green-bloom{
+    from {color:rgb(4, 61, 33);}
+    to {color: rgba(102, 255, 112, 0.5);}
+}
+@keyframes clr-orange-bloom{
+    from {color: darkgoldenrod;}
+    to {color:  rgb(255, 183, 2);}
+}
+@keyframes bg-clr-gray-bloom{
+    from {background-color: #0c0c0c00;}
+    to {background-color: #ffffff23;}
+}
+@keyframes bg-clr-gray-bloom-es{
+    0%{
+        background-color: #0c0c0c4d;
+    }
+    10%{
+        background-color: #ffcd4d0c;
+    }
+    15%{
+        background-color: #0c0c0c4d;
+    }
+    100%{
+        background-color: #0c0c0c4d;
+    }
+}
+@font-face{
+    font-family: 'Jura';
+    src: url(Fonts/static/Jura-SemiBold.ttf);
+}
