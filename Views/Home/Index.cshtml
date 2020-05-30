@@ -1,23 +1,26 @@
-﻿
-<div class="toolbar">
-</div>
+﻿@{string current_user = "unsigned";
+    if (User.Identity.IsAuthenticated)
+    {
+        current_user = User.Identity.Name;
+    }
+    }
+    <div class="toolbar">
+    </div>
 <div class="container-console">
     <div class="console-header font-medium">
         <div class="logo txt-console-orange">Terminal: </div>
-        <div class="user">unsigned:~</div>
+        <div class="user"> @current_user</div>
     </div>
     <div id="output" class="console-output txt-console-orange font-medium">
         <div>~ Welcome to airTalk!</div>
     </div>
     <div class="console-input-container">
         <div class="sidebar">
-
         </div>
         <div class="keyboard">
             <textarea id="input" rows="1" class="txt-console-bg-gray font-medium"></textarea>
         </div>
         <div class="sidebar">
-
         </div>
     </div>
 </div>
@@ -40,11 +43,15 @@
                 e.preventDefault();
                 addTextToConsole(cmd);
                 $(this).val('');
-                sendCmd(cmd);
+                getAjaxFromTerminal(cmd);
             }
         });
 
-        let sendCmd = function (cmd) {
+        var clear = function () {
+            $("#output").empty();
+        }
+
+        var getAjaxFromTerminal = function (cmd) {
             $.ajax({
                 type: "POST",
                 url: "Terminal/InitializeCommand",
@@ -57,11 +64,37 @@
                     $('#input').prop('disabled', false);
                     $('#input').focus();
                 },
-                success: function (msg) {
-                    alert(msg);
+                success: function (response) {
+                    getFinalAjax(response);
                 },
                 error: function (req, status, error) {
-                    addTextToConsole("~error");
+                    addTextToConsole("error - service is still under developing");
+                }
+            });
+        };
+
+        var getFinalAjax = function (response) {
+            let tResult = JSON.parse(response);
+            let tUrl = "/Terminal/" + tResult.action;
+            let params = tResult.keyParams;
+            $.ajax({
+                type: "POST",
+                url: tUrl,
+                data: params,
+                dataType: "text",
+                success: function (subResponse) {
+                    try {
+                        let tSubResult = JSON.parse(subResponse);
+                        if (tSubResult.isJsMethod == true) {
+                            window[tSubResult.context]();
+                        }
+                        else {
+                            addTextToConsole(subResponse.context);
+                        }
+                    }
+                    catch (err) {
+                        $("#output").append(subResponse);
+                    }
                 }
             });
         }

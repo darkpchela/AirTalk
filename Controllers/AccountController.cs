@@ -30,11 +30,11 @@ namespace AirTalk.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            return View();
+            return PartialView("SignIn");
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(UserSignInVM user)
         {
             var checker = await db.users.FirstOrDefaultAsync(u => u.login == user.loginOrEmail || u.email == user.loginOrEmail);
@@ -56,9 +56,9 @@ namespace AirTalk.Controllers
                 HttpContext.Session.SetInt32("id", checker.id);
                 HttpContext.Session.SetString("login", checker.login);
                 //HttpContext.Session.SetString("rights",checker.rigths.ToString());
-                return RedirectToAction("Index", "Main");
-            }             
-                return View();
+                return RedirectToAction("Index", "Home");
+            }
+            return PartialView("SignIn", user);
         }
 
         public async Task<IActionResult> Logout()

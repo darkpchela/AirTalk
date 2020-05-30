@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace AirTalk.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class MainController : Controller
     {
         private readonly MainDbContext db;

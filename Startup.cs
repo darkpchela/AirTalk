@@ -32,7 +32,7 @@ namespace AirTalk
         {
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<MainDbContext>(options => options.UseSqlServer(connection));
-            services.AddTransient<UserCounterService>();
+            //services.AddTransient<UserCounterService>();
             services.AddSingleton<ChatLogger>();
             services.AddSingleton<cmdTranslator>();
             services.AddDistributedMemoryCache();
@@ -44,7 +44,7 @@ namespace AirTalk
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                .AddCookie(options => //CookieAuthenticationOptions
                 {
-                   options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
+                   options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Home/Index");
                });
             //services.AddControllersWithViews();
             services.AddLogging();
