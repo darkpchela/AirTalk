@@ -1,41 +1,31 @@
 ﻿@model UserSignInVM
-<form id="form" asp-action="Login" asp-controller="Account" >
-    <div>
         <div>
-            <label for="loginOrEmail">Login:</label><br />
-            <input asp-for="loginOrEmail" placeholder="Login/Email" /><span asp-validation-for="loginOrEmail"></span>
+            <label>Login:</label><br />
+            <input @*asp-for="loginOrEmail"*@ id="login" placeholder="Login/Email" />@*<span asp-validation-for="loginOrEmail"></span>*@
         </div>
         <div>
-            <label for="password">Password</label><br />
-            <input asp-for="password" placeholder="Password" /><span asp-validation-for="password"></span>
+            <label>Password</label><br />
+            <input @*asp-for="password"*@ id="password" placeholder="Password" />@*<span asp-validation-for="password"></span>*@
         </div>
-        <button id="btn" type="submit" class="btn-toolbar">Sign In</button>
-    </div>
-</form>
+        <button id="btn" type="button" class="btn-toolbar">Sign In</button>
 
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-    @*<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>*@
-    <script>
-        $('#form').submit(function () {
-            let formAction = $(this).attr("action");
-            $.ajax({
-                type: "POST",
-                url: formAction,
-                data: { loginOrEmail:$("#loginOrEmail").val(), password:$("#password").val() },
-                //data: new FormData().append('user', $('#form').serialize()),
-                //processData: false,
-                //contentType: false,
-                type: "text",
-                complete: function () {
-                    console.log('complete')
-                },
-                success: function (res) {
-                    console.log('OK');
-                },
-                error: function () {
-                    console.log('error');
-                }
-            })
+<script>
+
+    $("#btn").click(function () {
+        let data = { loginOrEmail: $("#login").val(), password: $("#password").val() };
+        $.ajax({
+            type: "POST",
+            url: "/Account/Login",
+            dataType: "text",
+            data: data,
+            success: function (response) {
+                $("#output").append(response);
+            },
+            error: function (req, status, error) {
+                addTextToConsole("error - service is still under developing");
+            }
         });
-    </script>
+    });
+</script>
+
+    

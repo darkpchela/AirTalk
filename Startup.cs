@@ -36,6 +36,7 @@ namespace AirTalk
             services.AddSingleton<ChatLogger>();
             services.AddSingleton<cmdTranslator>();
             services.AddDistributedMemoryCache();
+            //services.AddCors();
             services.AddSession(options =>
             {
                 options.Cookie.Name = ".AirTalk.UserSession";
@@ -73,6 +74,9 @@ namespace AirTalk
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseSession();
+            //app.UseCors(builder => builder.WithOrigins("https://localhost:5001", "https://localhost:5000")
+            //                .AllowAnyHeader()
+            //                .AllowAnyMethod());
             //app.UseMiddleware<ChatProviderMiddleware>();
             app.UseEndpoints(endpoints =>
             {

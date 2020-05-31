@@ -10,6 +10,7 @@
     <div class="console-header font-medium">
         <div class="logo txt-console-orange">Terminal: </div>
         <div class="user"> @current_user</div>
+        <button id="test" type="button">Test</button>
     </div>
     <div id="output" class="console-output txt-console-orange font-medium">
         <div>~ Welcome to airTalk!</div>
@@ -27,16 +28,14 @@
 
 
 @section Scripts{
-    <script src="~/AirTalk(Console style)/js/jquery-3.5.1.js"></script>
     <script>
-
-        let addTextToConsole = function (text) {
+        var addTextToConsole = function (text) {
             let textDiv = document.createElement("div");
             let innerText = document.createTextNode('~ ' + text);
             textDiv.append(innerText);
             $("#output").append(textDiv);
         };
-
+        
         $('#input').keypress(function (e) {
             if (e.keyCode == 13) {
                 let cmd = $(this).val();
@@ -60,7 +59,7 @@
                 beforeSend: function () {
                     $('#input').prop('disabled', true);
                 },
-                complete: function (req) {
+                complete: function () {
                     $('#input').prop('disabled', false);
                     $('#input').focus();
                 },
