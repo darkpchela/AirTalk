@@ -1,31 +1,25 @@
 ﻿@model UserSignInVM
-        <div>
-            <label>Login:</label><br />
-            <input @*asp-for="loginOrEmail"*@ id="login" placeholder="Login/Email" />@*<span asp-validation-for="loginOrEmail"></span>*@
-        </div>
-        <div>
-            <label>Password</label><br />
-            <input @*asp-for="password"*@ id="password" placeholder="Password" />@*<span asp-validation-for="password"></span>*@
-        </div>
-        <button id="btn" type="button" class="btn-toolbar">Sign In</button>
+<form id="loginForm" method="post">
 
-<script>
+    <div>
+        <label>Login:</label><br />
+        <input id="login" asp-for="loginOrEmail" placeholder="Login/Email" /><span asp-validation-for="loginOrEmail"></span>
+    </div>
+    <div>
+        <label>Password</label><br />
+        <input id="password" asp-for="password" placeholder="Password" /><span asp-validation-for="password"></span>
+    </div>
+    <button type="submit">Sign In</button>
+</form>
+<script id="loginScript">
 
-    $("#btn").click(function () {
-        let data = { loginOrEmail: $("#login").val(), password: $("#password").val() };
-        $.ajax({
-            type: "POST",
-            url: "/Account/Login",
-            dataType: "text",
-            data: data,
-            success: function (response) {
-                $("#output").append(response);
-            },
-            error: function (req, status, error) {
-                addTextToConsole("error - service is still under developing");
-            }
-        });
+    $(function () {
+        $("#loginForm").submit(function (e) {
+        e.preventDefault();
+            loginAjaxFunc();
     });
-</script>
+    });
 
-    
+</script>@*Ajax login enable script*@
+
+

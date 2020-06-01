@@ -74,8 +74,8 @@ namespace AirTalk.Controllers
         {
             public bool isJsMethod { get; set; }
             public bool isView { get; set; }
-            public string context { get; set; }
-            public TerminalResult(string context)
+            public dynamic context { get; set; }
+            public TerminalResult(dynamic context)
             {
                 this.isJsMethod = false;
                 this.context = context;

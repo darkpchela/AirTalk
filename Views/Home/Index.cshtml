@@ -3,9 +3,9 @@
     {
         current_user = User.Identity.Name;
     }
-    }
-    <div class="toolbar">
-    </div>
+}
+<div class="toolbar">
+</div>
 <div class="container-console">
     <div class="console-header font-medium">
         <div class="logo txt-console-orange">Terminal: </div>
@@ -29,13 +29,18 @@
 
 @section Scripts{
     <script>
+        $("#test").click(function () {
+            $("#loginScript").remove();
+        });
+    </script>@*Test buttton script, delete later*@
+    <script>
         var addTextToConsole = function (text) {
             let textDiv = document.createElement("div");
             let innerText = document.createTextNode('~ ' + text);
             textDiv.append(innerText);
             $("#output").append(textDiv);
         };
-        
+
         $('#input').keypress(function (e) {
             if (e.keyCode == 13) {
                 let cmd = $(this).val();
@@ -97,5 +102,26 @@
                 }
             });
         }
-    </script>
+    </script> @*interpreter script for cmd-line*@
+    <script>
+        var loginAjaxFunc = function () {
+            let data = { loginOrEmail: $("#login").val(), password: $("#password").val() };
+            $.ajax({
+                type: "POST",
+                url: "/Account/Login",
+                dataType: "text",
+                data: data,
+                complete: function () {
+                    $("#loginForm").remove();
+                    $("#loginScript").remove();
+                },
+                success: function (response) {
+                    $("#output").append(response);
+                },
+                error: function (req, status, error) {
+                    addTextToConsole("error - service is still under developing");
+                }
+            });
+        };
+    </script>@*Ajax login script*@
 }

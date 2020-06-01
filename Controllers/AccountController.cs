@@ -27,16 +27,17 @@ namespace AirTalk.Controllers
             return View();
         }
 
-        [HttpGet]
-        public IActionResult Login()
-        {
-            return PartialView("SignIn");
-        }
         [HttpPost]
         //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(UserSignInVM user)
         {
-            var checker = await db.users.FirstAsync(u => u.login == user.loginOrEmail || u.email == user.loginOrEmail);
+            UserModel checker = null;
+            try
+            {
+                checker = await db.users.FirstAsync(u => u.login == user.loginOrEmail || u.email == user.loginOrEmail);
+            }
+            catch
+            { }
 
             if (checker == null)
             {
