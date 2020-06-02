@@ -35,17 +35,17 @@ namespace AirTalk.Services.TerminalResultBuilder
             TerminalResult terminalSubResult = new TerminalResult("view", html);
             aspViews.Add(terminalSubResult);
         }
-        public List<TerminalResult> Build()
+        public TerminalResult[] Build()
         {
             List<TerminalResult> allResults = new List<TerminalResult>();
             if (aspViews != null)
-                allResults.Concat(aspViews);
+                allResults.AddRange(aspViews);
             if (jsFuncs != null)
-                allResults.Concat(jsFuncs);
+                allResults.AddRange(jsFuncs);
             if (ajaxFuncs != null)
-                allResults.Concat(ajaxFuncs);
+                allResults.AddRange(ajaxFuncs);
 
-            return allResults;
+            return allResults.ToArray();
         }
 
     }

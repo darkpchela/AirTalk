@@ -28,6 +28,70 @@
 
 
 @section Scripts{
+    <script>
+        $('#input').keypress(function (e) {
+            if (e.keyCode == 13) {
+                let cmd = $(this).val();
+                e.preventDefault();
+                addTextToConsole(cmd);
+                $(this).val('');
+                sendCommandToTerminal(cmd);
+            }
+        });
+
+        var sendCommandToTerminal = function (cmd) {
+            let data = { request: cmd };
+            let context = "/Terminal/InitializeCommand";
+            sendAjax(context, data);
+        }
+
+        var sendAjax = function (url, data) {
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: data,
+                dataType: "text",
+                beforeSend: function () {
+                    $('#input').prop('disabled', true);
+                },
+                complete: function () {
+                    $('#input').prop('disabled', false);
+                    $('#input').focus();
+                },
+                success: function (response) {
+                    addTextToConsole(response);
+                    getResponse(response);
+                },
+                error: function (req, status, error) {
+                    addTextToConsole(error);
+                }
+            });
+
+            let getResponse = function (response) {
+                let terminalResult = JSON.parse(response);
+                for (let i = 0; i < terminalResult.length; i++) {
+
+                    let type = terminalResult[i].type;
+                    let context = terminalResult[i].context;
+                    let data = terminalResult[i].contextParams;
+
+                    if (type == "view") {
+                        $("#output").append(context);
+                    }
+                    if (type == "js") {
+                        window[context](data);
+                    }
+
+                    if (type == "ajax") {
+                        sendAjax(context, data);
+                    }
+                }
+
+            };
+        }
+
+
+    </script>
     @*Test buttton script, delete later*@
     <script>
         $("#test").click(function () {
@@ -49,70 +113,70 @@
     </script>
 
     @*interpreter script for cmd-line*@
-    <script>
+    @*<script>
 
 
-        $('#input').keypress(function (e) {
-            if (e.keyCode == 13) {
-                let cmd = $(this).val();
-                e.preventDefault();
-                addTextToConsole(cmd);
-                $(this).val('');
-                getAjaxFromTerminal(cmd);
-            }
-        });
-
-
-
-        var getAjaxFromTerminal = function (cmd) {
-            $.ajax({
-                type: "POST",
-                url: "Terminal/InitializeCommand",
-                data: { request: cmd },
-                dataType: "text",
-                beforeSend: function () {
-                    $('#input').prop('disabled', true);
-                },
-                complete: function () {
-                    $('#input').prop('disabled', false);
-                    $('#input').focus();
-                },
-                success: function (response) {
-                    getFinalAjax(response);
-                },
-                error: function (req, status, error) {
-                    addTextToConsole("error - service is still under developing");
+            $('#input').keypress(function (e) {
+                if (e.keyCode == 13) {
+                    let cmd = $(this).val();
+                    e.preventDefault();
+                    addTextToConsole(cmd);
+                    $(this).val('');
+                    getAjaxFromTerminal(cmd);
                 }
             });
-            let getFinalAjax = function (response) {
-                let tResult = JSON.parse(response);
-                let tUrl = "/Terminal/" + tResult.action;
-                let params = tResult.keyParams;
+
+
+
+            var getAjaxFromTerminal = function (cmd) {
                 $.ajax({
                     type: "POST",
-                    url: tUrl,
-                    data: params,
+                    url: "Terminal/InitializeCommand",
+                    data: { request: cmd },
                     dataType: "text",
-                    success: function (subResponse) {
-                        try {
-                            let tSubResult = JSON.parse(subResponse);
-                            if (tSubResult.isJsMethod == true) {
-                                window[tSubResult.context]();
-                            }
-                            else {
-                                console.log("else");
-                                $("#output").append(tSubResult.context);
-                            }
-                        }
-                        catch (err) {
-                            console.log("error");
-                            $("#output").append(subResponse);
-                        }
+                    beforeSend: function () {
+                        $('#input').prop('disabled', true);
+                    },
+                    complete: function () {
+                        $('#input').prop('disabled', false);
+                        $('#input').focus();
+                    },
+                    success: function (response) {
+                        getFinalAjax(response);
+                    },
+                    error: function (req, status, error) {
+                        addTextToConsole("error - service is still under developing");
                     }
                 });
-            };
-        }
-    </script>
+                let getFinalAjax = function (response) {
+                    let tResult = JSON.parse(response);
+                    let tUrl = "/Terminal/" + tResult.action;
+                    let params = tResult.keyParams;
+                    $.ajax({
+                        type: "POST",
+                        url: tUrl,
+                        data: params,
+                        dataType: "text",
+                        success: function (subResponse) {
+                            try {
+                                let tSubResult = JSON.parse(subResponse);
+                                if (tSubResult.isJsMethod == true) {
+                                    window[tSubResult.context]();
+                                }
+                                else {
+                                    console.log("else");
+                                    $("#output").append(tSubResult.context);
+                                }
+                            }
+                            catch (err) {
+                                console.log("error");
+                                $("#output").append(subResponse);
+                            }
+                        }
+                    });
+                };
+            }
+        </script>*@
 
     @*Ajax login script*@
     <script>
@@ -141,4 +205,5 @@
             });
         };
     </script>
+
 }

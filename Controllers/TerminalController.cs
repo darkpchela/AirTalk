@@ -37,7 +37,8 @@ namespace AirTalk.Controllers
         {
             var cmdResponse = cmdTranslator.ReadCommand(request);
             terminalResultBuilder.AddAjaxFunc(cmdResponse.action, cmdResponse.cmdParams);
-            return Json(terminalResultBuilder.Build());
+            var result = terminalResultBuilder.Build();
+            return Json(result);
         }
         [HttpPost]
         public IActionResult error(string mes)
@@ -46,16 +47,19 @@ namespace AirTalk.Controllers
             return Json(terminalResultBuilder.Build());
         }
         [HttpPost]
-        //public async Task<IActionResult> login()
-        //{
-        //    string view = await RenderPartialViewToString("SignIn");
-        //    var res = Json(new SubTerminalResult(view)) ;
-        //    return res;
-        //}
-        //public IActionResult logout()
-        //{
-        //    return RedirectToAction("Logout", "Account");
-        //}
+        public async Task<IActionResult> login()
+        {
+            string view = await RenderPartialViewToString("SignIn");
+            terminalResultBuilder.AddAspView(view);
+            return Json(terminalResultBuilder.Build());
+        }
+
+        [HttpPost]
+        public IActionResult logout()
+        {
+            return RedirectToAction("Logout", "Account");
+        }
+
         //[HttpPost]
         //public IActionResult select(int? themeId)
         //{

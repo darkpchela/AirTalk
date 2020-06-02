@@ -13,13 +13,13 @@ namespace AirTalk.Services.CommandTranslator
         static cmdTranslator()
         {
             cmdToAction = new Dictionary<string, cmdInfo>();
-            cmdToAction.Add("login", new cmdInfo("login", false, true));
+            cmdToAction.Add("login", new cmdInfo("Terminal/login", false, true));
             cmdToAction.Add("logout", new cmdInfo("logout", false, true));
             cmdToAction.Add("chatmode", new cmdInfo("chatmode", true, false,
                 new Dictionary<string, Type> { { "state", typeof(bool) } }));
             cmdToAction.Add("select", new cmdInfo("select", false, false,
                 new Dictionary<string, Type> { { "themeId", typeof(int) } }));
-            cmdToAction.Add("clear", new cmdInfo("clear", false, true));
+            cmdToAction.Add("clear", new cmdInfo("Terminal/clear", false, true));
         }
         public cmdResponse ReadCommand(string request)
         {

@@ -7,9 +7,9 @@ namespace AirTalk.Services.TerminalResultBuilder
 {
     public class TerminalResult
     {
-        string type { get; set; }
-        string context { get; set; }
-        Dictionary<string, string> contextParams { get; set; }
+        public string type { get; set; }
+        public string context { get; set; }
+        public Dictionary<string, string> contextParams { get; set; }
         public TerminalResult(string type, string context, Dictionary<string, string> keyValues = null)
         {
             this.type = type;
