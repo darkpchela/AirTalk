@@ -78,8 +78,13 @@
                     if (type == "view") {
                         $("#output").append(context);
                     }
+
                     if (type == "js") {
-                        window[context](data);
+                        var args = [];
+                        for (var key in data) {
+                            args.push(data[key]);
+                        }
+                        window[context].apply(this, args)
                     }
 
                     if (type == "ajax") {
@@ -110,6 +115,33 @@
         var clear = function () {
             $("#output").empty();
         }
+    </script>
+    @*Ajax login script*@
+    <script>
+        var loginAjaxFunc = function () {
+            let token = $('input[name ="__RequestVerificationToken"]').val();
+            let data = {
+                __RequestVerificationToken: token,
+                loginOrEmail: $("#login").val(),
+                password: $("#password").val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Account/Login",
+                dataType: "text",
+                data: data,
+                complete: function () {
+                    $("#loginForm").remove();
+                    $("#loginScript").remove();
+                },
+                success: function (response) {
+                    $("#output").append(response);
+                },
+                error: function (req, status, error) {
+                    addTextToConsole("error - service is still under developing");
+                }
+            });
+        };
     </script>
 
     @*interpreter script for cmd-line*@
@@ -178,32 +210,6 @@
             }
         </script>*@
 
-    @*Ajax login script*@
-    <script>
-        var loginAjaxFunc = function () {
-            let token = $('input[name ="__RequestVerificationToken"]').val();
-            let data = {
-                __RequestVerificationToken: token,
-                loginOrEmail: $("#login").val(),
-                password: $("#password").val()
-            };
-            $.ajax({
-                type: "POST",
-                url: "/Account/Login",
-                dataType: "text",
-                data: data,
-                complete: function () {
-                    $("#loginForm").remove();
-                    $("#loginScript").remove();
-                },
-                success: function (response) {
-                    $("#output").append(response);
-                },
-                error: function (req, status, error) {
-                    addTextToConsole("error - service is still under developing");
-                }
-            });
-        };
-    </script>
+
 
 }

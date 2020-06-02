@@ -14,8 +14,8 @@ namespace AirTalk.Services.CommandTranslator
         {
             cmdToAction = new Dictionary<string, cmdInfo>();
             cmdToAction.Add("login", new cmdInfo("Terminal/login", false, true));
-            cmdToAction.Add("logout", new cmdInfo("logout", false, true));
-            cmdToAction.Add("chatmode", new cmdInfo("chatmode", true, false,
+            cmdToAction.Add("logout", new cmdInfo("Terminal/logout", false, true));
+            cmdToAction.Add("chatmode", new cmdInfo("Terminal/chatmode", true, false,
                 new Dictionary<string, Type> { { "state", typeof(bool) } }));
             cmdToAction.Add("select", new cmdInfo("select", false, false,
                 new Dictionary<string, Type> { { "themeId", typeof(int) } }));
