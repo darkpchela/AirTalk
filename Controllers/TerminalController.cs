@@ -7,9 +7,13 @@ using System.Dynamic;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using AirTalk.Services.CommandTranslator;
+using AirTalk.Services.TerminalResultBuilder;
 using Microsoft.Extensions.Logging;
 using AirTalk.Models.ViewModels;
-using System.Web;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.IO;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace AirTalk.Controllers
 {
@@ -17,78 +21,100 @@ namespace AirTalk.Controllers
     {
         cmdTranslator cmdTranslator;
         ILogger<TerminalController> logger;
-        public TerminalController(cmdTranslator cmdTranslator, ILogger<TerminalController> logger)
+        ICompositeViewEngine viewEngine;
+        TerminalResultBuilder terminalResultBuilder;
+        public TerminalController(cmdTranslator cmdTranslator, ILogger<TerminalController> logger,
+            ICompositeViewEngine viewEngine, TerminalResultBuilder terminalResultBuilder)
         {
             this.cmdTranslator = cmdTranslator;
             this.logger = logger;
-
+            this.viewEngine = viewEngine;
+            this.terminalResultBuilder = new TerminalResultBuilder();
         }
 
         [HttpPost]
         public IActionResult InitializeCommand(string request)
         {
             var cmdResponse = cmdTranslator.ReadCommand(request);
-            //if (cmdResponse.cmdParams != null)
-            //{
-            //    return RedirectToAction(cmdResponse.action, cmdResponse.cmdParams);
-            //}
-            //return RedirectToAction(cmdResponse.action);
-            if (cmdResponse.cmdParams!=null)
-            {
-                return Json(new TerminalResultAjax(cmdResponse.action, cmdResponse.cmdParams));
-            }
-            return Json(new TerminalResultAjax(cmdResponse.action, cmdResponse.cmdParams));
-
-
-
+            terminalResultBuilder.AddAjaxFunc(cmdResponse.action, cmdResponse.cmdParams);
+            return Json(terminalResultBuilder.Build());
         }
         [HttpPost]
         public IActionResult error(string mes)
         {
-            return Json(new TerminalResult(mes));
+            terminalResultBuilder.AddJSFunc("addTextToConsole", new Dictionary<string, string> { { "message", mes } });
+            return Json(terminalResultBuilder.Build());
         }
         [HttpPost]
-        public IActionResult login()
-        {
-            return PartialView("SignIn");
-        }
-        //public IActionResult logout(bool? mode)
+        //public async Task<IActionResult> login()
         //{
-
+        //    string view = await RenderPartialViewToString("SignIn");
+        //    var res = Json(new SubTerminalResult(view)) ;
+        //    return res;
         //}
-        [HttpPost]
-        public IActionResult select(int? themeId)
-        {
-            if (themeId == null)
-                return RedirectToAction("SelectTheme", "Main");
-            else
-                return RedirectToAction("SelectTheme", "Main", themeId);
-        }
+        //public IActionResult logout()
+        //{
+        //    return RedirectToAction("Logout", "Account");
+        //}
+        //[HttpPost]
+        //public IActionResult select(int? themeId)
+        //{
+        //    if (themeId == null)
+        //        return RedirectToAction("SelectTheme", "Main");
+        //    else
+        //        return RedirectToAction("SelectTheme", "Main", themeId);
+        //}
         [HttpPost]
         public IActionResult clear()
         {
-            var result = new TerminalResult("clear") { isJsMethod = true };
-            return Json(result);
+            terminalResultBuilder.AddJSFunc("clear");
+            return Json(terminalResultBuilder.Build());
         }
-        class TerminalResult
+        //class SubTerminalResult
+        //{
+        //    public bool isJsMethod { get; set; }
+        //    public bool isView { get; set; }
+        //    public string context { get; set; }
+        //    public SubTerminalResult(string context)
+        //    {
+        //        this.isJsMethod = false;
+        //        this.context = context;
+        //    }
+        //}
+        //class TerminalResultAjax
+        //{
+        //    public string action { get; set; }
+        //    public Dictionary<string,string> keyParams { get; set; }
+        //    public TerminalResultAjax( string action, Dictionary<string,string> keyParams)
+        //    {
+        //        this.action = action;
+        //        this.keyParams = keyParams;
+        //    }
+        //}
+        private async Task<string> RenderPartialViewToString(string viewName, object model=null)
         {
-            public bool isJsMethod { get; set; }
-            public bool isView { get; set; }
-            public dynamic context { get; set; }
-            public TerminalResult(dynamic context)
+            if (string.IsNullOrEmpty(viewName))
+                viewName = ControllerContext.ActionDescriptor.ActionName;
+
+            ViewData.Model = model;
+
+            using (var writer = new StringWriter())
             {
-                this.isJsMethod = false;
-                this.context = context;
-            }
-        }
-        class TerminalResultAjax
-        {
-            public string action { get; set; }
-            public Dictionary<string,string> keyParams { get; set; }
-            public TerminalResultAjax( string action, Dictionary<string,string> keyParams)
-            {
-                this.action = action;
-                this.keyParams = keyParams;
+                ViewEngineResult viewResult =
+                    viewEngine.FindView(ControllerContext, viewName, false);
+
+                ViewContext viewContext = new ViewContext(
+                    ControllerContext,
+                    viewResult.View,
+                    ViewData,
+                    TempData,
+                    writer,
+                    new HtmlHelperOptions()
+                );
+
+                await viewResult.View.RenderAsync(viewContext);
+
+                return writer.GetStringBuilder().ToString();
             }
         }
     }

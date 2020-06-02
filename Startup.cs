@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using AirTalk.Models.DBModels;
 using AirTalk.Services;
 using AirTalk.Services.CommandTranslator;
+using AirTalk.Services.TerminalResultBuilder;
 using Microsoft.AspNetCore.Http;
 
 namespace AirTalk
@@ -33,6 +34,7 @@ namespace AirTalk
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<MainDbContext>(options => options.UseSqlServer(connection));
             //services.AddTransient<UserCounterService>();
+            services.AddTransient<TerminalResultBuilder>();
             services.AddSingleton<ChatLogger>();
             services.AddSingleton<cmdTranslator>();
             services.AddDistributedMemoryCache();

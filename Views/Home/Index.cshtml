@@ -28,11 +28,14 @@
 
 
 @section Scripts{
+    @*Test buttton script, delete later*@
     <script>
         $("#test").click(function () {
             $("#loginScript").remove();
         });
-    </script>@*Test buttton script, delete later*@
+    </script>
+
+    @*JS client commands*@
     <script>
         var addTextToConsole = function (text) {
             let textDiv = document.createElement("div");
@@ -40,6 +43,14 @@
             textDiv.append(innerText);
             $("#output").append(textDiv);
         };
+        var clear = function () {
+            $("#output").empty();
+        }
+    </script>
+
+    @*interpreter script for cmd-line*@
+    <script>
+
 
         $('#input').keypress(function (e) {
             if (e.keyCode == 13) {
@@ -51,9 +62,7 @@
             }
         });
 
-        var clear = function () {
-            $("#output").empty();
-        }
+
 
         var getAjaxFromTerminal = function (cmd) {
             $.ajax({
@@ -75,37 +84,45 @@
                     addTextToConsole("error - service is still under developing");
                 }
             });
-        };
-
-        var getFinalAjax = function (response) {
-            let tResult = JSON.parse(response);
-            let tUrl = "/Terminal/" + tResult.action;
-            let params = tResult.keyParams;
-            $.ajax({
-                type: "POST",
-                url: tUrl,
-                data: params,
-                dataType: "text",
-                success: function (subResponse) {
-                    try {
-                        let tSubResult = JSON.parse(subResponse);
-                        if (tSubResult.isJsMethod == true) {
-                            window[tSubResult.context]();
+            let getFinalAjax = function (response) {
+                let tResult = JSON.parse(response);
+                let tUrl = "/Terminal/" + tResult.action;
+                let params = tResult.keyParams;
+                $.ajax({
+                    type: "POST",
+                    url: tUrl,
+                    data: params,
+                    dataType: "text",
+                    success: function (subResponse) {
+                        try {
+                            let tSubResult = JSON.parse(subResponse);
+                            if (tSubResult.isJsMethod == true) {
+                                window[tSubResult.context]();
+                            }
+                            else {
+                                console.log("else");
+                                $("#output").append(tSubResult.context);
+                            }
                         }
-                        else {
-                            addTextToConsole(subResponse.context);
+                        catch (err) {
+                            console.log("error");
+                            $("#output").append(subResponse);
                         }
                     }
-                    catch (err) {
-                        $("#output").append(subResponse);
-                    }
-                }
-            });
+                });
+            };
         }
-    </script> @*interpreter script for cmd-line*@
+    </script>
+
+    @*Ajax login script*@
     <script>
         var loginAjaxFunc = function () {
-            let data = { loginOrEmail: $("#login").val(), password: $("#password").val() };
+            let token = $('input[name ="__RequestVerificationToken"]').val();
+            let data = {
+                __RequestVerificationToken: token,
+                loginOrEmail: $("#login").val(),
+                password: $("#password").val()
+            };
             $.ajax({
                 type: "POST",
                 url: "/Account/Login",
@@ -123,5 +140,5 @@
                 }
             });
         };
-    </script>@*Ajax login script*@
+    </script>
 }
