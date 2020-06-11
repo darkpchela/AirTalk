@@ -7,29 +7,31 @@ using System.Dynamic;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using AirTalk.Services.CommandTranslator;
-using AirTalk.Services.TerminalResultBuilder;
+using AirTalk.Services;
 using Microsoft.Extensions.Logging;
 using AirTalk.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.IO;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using AirTalk.Models.DBModels;
+using Microsoft.AspNetCore.Http;
 
 namespace AirTalk.Controllers
 {
     public class TerminalController : Controller
     {
+        MainDbContext db;
         cmdTranslator cmdTranslator;
         ILogger<TerminalController> logger;
-        ICompositeViewEngine viewEngine;
         TerminalResultBuilder terminalResultBuilder;
         public TerminalController(cmdTranslator cmdTranslator, ILogger<TerminalController> logger,
-            ICompositeViewEngine viewEngine, TerminalResultBuilder terminalResultBuilder)
+            TerminalResultBuilder terminalResultBuilder, MainDbContext db)
         {
+            this.db = db;
             this.cmdTranslator = cmdTranslator;
             this.logger = logger;
-            this.viewEngine = viewEngine;
-            this.terminalResultBuilder = new TerminalResultBuilder();
+            this.terminalResultBuilder = terminalResultBuilder;
         }
 
         [HttpPost]
@@ -43,83 +45,109 @@ namespace AirTalk.Controllers
         [HttpPost]
         public IActionResult error(string mes)
         {
-            terminalResultBuilder.AddJSFunc("addTextToConsole", new Dictionary<string, string> { { "message", mes } });
+            terminalResultBuilder.AddJSFuncInline("addTextToConsole",  mes);
             return Json(terminalResultBuilder.Build());
         }
         [HttpPost]
-        public async Task<IActionResult> login()
+        public IActionResult login()
         {
-            string view = await RenderPartialViewToString("SignIn");
-            terminalResultBuilder.AddAspView(view);
+            terminalResultBuilder.AddAspView(this, "SignIn");
             return Json(terminalResultBuilder.Build());
         }
 
         [HttpPost]
         public IActionResult logout()
         {
-            return RedirectToAction("Logout", "Account");
+            terminalResultBuilder.AddAjaxFunc("Account/Logout");
+            return Json(terminalResultBuilder.Build());
         }
 
-        //[HttpPost]
-        //public IActionResult select(int? themeId)
-        //{
-        //    if (themeId == null)
-        //        return RedirectToAction("SelectTheme", "Main");
-        //    else
-        //        return RedirectToAction("SelectTheme", "Main", themeId);
-        //}
+        [HttpPost]
+        public IActionResult select(int? themeId)
+        {
+            if (themeId==null)
+            {
+                var themes = db.themes.OrderBy(t => t.creationTime).Take(10);
+                foreach(var t in themes)
+                {
+                    terminalResultBuilder.AddJSFuncInline("addTextToConsole", t.name);
+                }
+                var result = terminalResultBuilder.Build();
+                return Json(result);
+            }
+
+            if (db.themes.Any(t=>t.id==themeId))
+            {
+                var themeModel = db.themes.First(t => t.id == themeId);
+                var themeList = HttpContext.Session.Get<List<Theme>>("themes");
+                if (themeList==null)
+                {
+                    themeList = new List<Theme> { themeModel };
+                }
+                else if(themeList.Contains(themeModel))
+                {
+                    return null;
+                }
+                else
+                {
+                    themeList.Add(themeModel);
+                }
+                HttpContext.Session.Set<List<Theme>>("themes", themeList);
+                //HttpContext.Session.SetInt32("currentThemeId", themeId.Value);
+                var session = HttpContext.Session.SessionInfo();
+                terminalResultBuilder.AddJSFuncModel("updateThemesView", session);
+                return Json(terminalResultBuilder.Build());
+            }
+            else
+            {
+                HttpContext.Session.SetInt32("currentThemeId", -1);
+                terminalResultBuilder.AddJSFuncInline("addTextToConsole", "theme not found");
+                return Json(terminalResultBuilder.Build());
+            }
+        }
+        [HttpPost]
+        public void deselect(int id)
+        {
+            try
+            {
+                var themeList = HttpContext.Session.Get<List<Theme>>("themes");
+                var theme = themeList.Find(t => t.id == id);
+                themeList.Remove(theme);
+                HttpContext.Session.Set<List<Theme>>("themes", themeList);
+            }
+            catch { }
+        }
         [HttpPost]
         public IActionResult clear()
         {
-            terminalResultBuilder.AddJSFunc("clear");
+            terminalResultBuilder.AddJSFuncInline("clear");
             return Json(terminalResultBuilder.Build());
         }
-        //class SubTerminalResult
+        //private async Task<string> RenderPartialViewToString(string viewName, object model=null)
         //{
-        //    public bool isJsMethod { get; set; }
-        //    public bool isView { get; set; }
-        //    public string context { get; set; }
-        //    public SubTerminalResult(string context)
+        //    if (string.IsNullOrEmpty(viewName))
+        //        viewName = ControllerContext.ActionDescriptor.ActionName;
+
+        //    ViewData.Model = model;
+
+        //    using (var writer = new StringWriter())
         //    {
-        //        this.isJsMethod = false;
-        //        this.context = context;
+        //        ViewEngineResult viewResult =
+        //            viewEngine.FindView(ControllerContext, viewName, false);
+
+        //        ViewContext viewContext = new ViewContext(
+        //            ControllerContext,
+        //            viewResult.View,
+        //            ViewData,
+        //            TempData,
+        //            writer,
+        //            new HtmlHelperOptions()
+        //        );
+
+        //        await viewResult.View.RenderAsync(viewContext);
+
+        //        return writer.GetStringBuilder().ToString();
         //    }
         //}
-        //class TerminalResultAjax
-        //{
-        //    public string action { get; set; }
-        //    public Dictionary<string,string> keyParams { get; set; }
-        //    public TerminalResultAjax( string action, Dictionary<string,string> keyParams)
-        //    {
-        //        this.action = action;
-        //        this.keyParams = keyParams;
-        //    }
-        //}
-        private async Task<string> RenderPartialViewToString(string viewName, object model=null)
-        {
-            if (string.IsNullOrEmpty(viewName))
-                viewName = ControllerContext.ActionDescriptor.ActionName;
-
-            ViewData.Model = model;
-
-            using (var writer = new StringWriter())
-            {
-                ViewEngineResult viewResult =
-                    viewEngine.FindView(ControllerContext, viewName, false);
-
-                ViewContext viewContext = new ViewContext(
-                    ControllerContext,
-                    viewResult.View,
-                    ViewData,
-                    TempData,
-                    writer,
-                    new HtmlHelperOptions()
-                );
-
-                await viewResult.View.RenderAsync(viewContext);
-
-                return writer.GetStringBuilder().ToString();
-            }
-        }
     }
 }

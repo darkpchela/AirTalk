@@ -11,6 +11,7 @@ using AirTalk.Services.CommandTranslator;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Http;
+using AirTalk.Services;
 
 namespace AirTalk.Controllers
 {
@@ -20,25 +21,27 @@ namespace AirTalk.Controllers
         private readonly MainDbContext db;
         private readonly ILogger<MainController> logger;
         private MainInfoViewModel mainVM;
+        private TerminalResultBuilder resultBuilder;
 
-        public MainController(MainDbContext db, ILogger<MainController> logger, cmdTranslator cmdTranslator)
+        public MainController(MainDbContext db, ILogger<MainController> logger, cmdTranslator cmdTranslator, TerminalResultBuilder resultBuilder)
         {
             this.db = db;
             this.logger = logger;
+            this.resultBuilder = resultBuilder;
         }
 
         //[Route("Main/Index/{id?}")]
         public IActionResult Index()
         {
-            var id = HttpContext.Session.GetInt32("currentThemeId");
+            //var id = HttpContext.Session.GetInt32("currentThemeId");
 
-            mainVM = new MainInfoViewModel(this.db);
-            mainVM.currentUser = this.db.users.FirstOrDefault(u => u.login == User.Identity.Name);
+            //mainVM = new MainInfoViewModel(this.db);
+            //mainVM.currentUser = this.db.users.First(u => u.login == User.Identity.Name);
 
-            if (id != null && id.Value > 0)
-                mainVM.currentTheme = db.themes.FirstOrDefault(t => t.id == id);
+            //if (id != null && id.Value > 0)
+            //    mainVM.currentTheme = db.themes.First(t => t.id == id);
 
-            return View(mainVM);
+            return View();
         }
         public IActionResult Account()
         {
@@ -47,7 +50,7 @@ namespace AirTalk.Controllers
 
         public IActionResult SelectTheme(int? id)
         {
-            if (id!=null&&db.themes.FirstOrDefault(t=>t.id==id)!=null)
+            if (id!=null&&db.themes.First(t=>t.id==id)!=null)
             {
                 HttpContext.Session.SetInt32("currentThemeId", id.Value);
                 return RedirectToAction("Index");
@@ -75,7 +78,7 @@ namespace AirTalk.Controllers
             }
             if (ModelState.IsValid)
             {
-                Theme newTheme = themeViewModel.GetDBModel(db.users.FirstOrDefault(u=>u.login==User.Identity.Name).id);
+                Theme newTheme = themeViewModel.GetDBModel(db.users.First(u=>u.login==User.Identity.Name).id);
                 db.themes.Add(newTheme);
                 db.SaveChanges();
                 int themeId = newTheme.id;

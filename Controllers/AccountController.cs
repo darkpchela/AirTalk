@@ -11,14 +11,16 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
-
+using AirTalk.Services;
 namespace AirTalk.Controllers
 {
     public class AccountController : Controller
     {
         private readonly MainDbContext db;
-        public AccountController(MainDbContext db)
+        TerminalResultBuilder resultBuilder;
+        public AccountController(MainDbContext db, TerminalResultBuilder resultBuilder)
         {
+            this.resultBuilder = resultBuilder;
             this.db = db;
         }
 
@@ -55,18 +57,31 @@ namespace AirTalk.Controllers
                 await Authenticate(user.loginOrEmail);
                 HttpContext.Session.SetInt32("id", checker.id);
                 HttpContext.Session.SetString("login", checker.login);
+                HttpContext.Session.SetInt32("chatmode", 0);
                 //HttpContext.Session.SetString("rights",checker.rigths.ToString());
-                return RedirectToAction("Index", "Home");
+                resultBuilder.AddJSFuncModel("updateUserInfo");
+                return Json(resultBuilder.Build());
             }
-
-            return PartialView("SignIn", user);
+            resultBuilder.AddAspView(this,"SignIn", user);
+            return Json(resultBuilder.Build());
 
         }
 
+        [HttpPost]
+        public IActionResult GetSessionInfo()
+        {
+            var session = HttpContext.Session.SessionInfo();
+            resultBuilder.AddJSFuncModel("updateUserInfo", session);
+            return Json(resultBuilder.Build());
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Index", "Home");
+            HttpContext.Session.Clear();
+            resultBuilder.AddJSFuncModel("updateUserInfo", null);
+            return Json(resultBuilder.Build());
         }
 
         private async Task Authenticate(string loginOrEmail)
@@ -84,7 +99,7 @@ namespace AirTalk.Controllers
         [AcceptVerbs("Get", "Post")]
         public IActionResult CheckLogin(string login)
         {
-            var checker = db.users.FirstOrDefault(u => u.login == login);
+            var checker = db.users.First(u => u.login == login);
             if (checker == null)
                 return Json(true);
             else
@@ -93,7 +108,7 @@ namespace AirTalk.Controllers
 
         public IActionResult CheckEmail(string email)
         {
-            var checker = db.users.FirstOrDefault(u => u.email == email);
+            var checker = db.users.First(u => u.email == email);
             if (checker == null)
                 return Json(true);
             else

@@ -1,0 +1,219 @@
+﻿@model AirTalk.Models.ViewModels.MainInfoViewModel;
+@{
+    string current_theme = "none";
+    if (Model?.currentTheme != null)
+    {
+        current_theme = Model.currentTheme.name;
+    }
+    string current_user = "unsigned";
+    if (User.Identity.IsAuthenticated)
+    {
+        current_user = User.Identity.Name;
+    }
+}
+<div class="toolbar">
+</div>
+<div class="container-console">
+    <div class="console-header font-medium">
+        <div class="logo txt-console-orange">Terminal: </div>
+        <div class="user" id="current_user">@current_user</div>
+        <div class="txt-console-orange" id="current_theme">
+            @if (Model != null)
+            {
+                @current_theme;
+            }
+        </div>
+        <button id="test" type="button">Test</button>
+    </div>
+    <div id="output" class="console-output txt-console-orange font-medium">
+        <div>~ Welcome to airTalk!</div>
+    </div>
+    <div class="console-input-container">
+        <div class="sidebar">
+        </div>
+        <div class="keyboard">
+            <textarea id="input" rows="1" class="txt-console-bg-gray font-medium"></textarea>
+        </div>
+        <div class="sidebar">
+        </div>
+    </div>
+</div>
+
+
+@section Scripts{
+
+    @*cmdTranslatorScript*@
+    <script>
+        $('#input').keypress(function (e) {
+            if (e.keyCode == 13) {
+                let cmd = $(this).val();
+                e.preventDefault();
+                addTextToConsole(cmd);
+                $(this).val('');
+                sendCommandToTerminal(cmd);
+            }
+        });
+
+        var sendCommandToTerminal = function (cmd) {
+            let data = { request: cmd };
+            let context = "/Terminal/InitializeCommand";
+            sendAjax(context, data);
+        }
+
+        var sendAjax = function (url, data) {
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: data,
+                dataType: "text",
+                beforeSend: function () {
+                    $('#input').prop('disabled', true);
+                },
+                complete: function () {
+                    $('#input').prop('disabled', false);
+                    $('#input').focus();
+                },
+                success: function (response) {
+                    //addTextToConsole(response);
+                    getResponse(response);
+                },
+                error: function (req, status, error) {
+                   addTextToConsole(error);
+                }
+            });
+
+            let getResponse = function (response) {
+                try {
+                    let terminalResult = JSON.parse(response);
+                    for (let i = 0; i < terminalResult.length; i++) {
+
+                        let type = terminalResult[i].type;
+                        let context = terminalResult[i].context;
+                        let data = terminalResult[i].contextParams;
+
+                        if (type == "view") {
+                            $("#output").append(context);
+                            break;
+                        }
+
+                        if (type == "js-inline") {
+                            var args = [];
+                            for (var key in data) {
+                                args.push(data[key]);
+                            }
+                            window[context].apply(this, args);
+                            break;
+                        }
+
+                        if (type == "js-model") {
+                            window[context](data);
+                            break;
+                        }
+
+                        if (type == "ajax") {
+                            sendAjax(context, data);
+                            break;
+                        }
+
+                        console.log("unkmown type of response");
+                    }
+
+                }
+                catch (error) {
+                    console.log("response error");
+                    $('#output').append(response);
+                }
+            };
+        }
+
+
+    </script>
+    @*Test buttton script, delete later*@
+    <script>
+        $("#test").click(function () {
+            $("#loginScript").remove();
+        });
+    </script>
+
+    @*JS client commands*@
+    <script>
+        var addTextToConsole = function (text) {
+            let textDiv = document.createElement("div");
+            let innerText = document.createTextNode('~ ' + text);
+            textDiv.append(innerText);
+            $("#output").append(textDiv);
+        };
+        var clear = function () {
+            $("#output").empty();
+        }
+        var updateUserInfo = function (session = null) {
+            if (session == null) {
+                sendAjax("Account/GetUserInfo");
+            }
+            else {
+                let userName = session["login"];
+                if (userName == null) {
+                    userName = "unsigned";
+                }
+                $("#current_user").empty().append(document.createTextNode(userName));
+                //$("#current_theme").empty().append(document.createTextNode(session["current_theme"]));
+            }
+        };
+    </script>
+    @*Ajax login script*@
+    <script>
+        var loginAjaxFunc = function () {
+            let token = $('input[name ="__RequestVerificationToken"]').val();
+            let data = {
+                __RequestVerificationToken: token,
+                loginOrEmail: $("#login").val(),
+                password: $("#password").val()
+            };
+            $("#loginForm").remove();
+            $("#loginScript").remove();
+            sendAjax("Account/Login", data);
+        };
+    </script>
+    @*chatScript*@
+  
+        @*<script>
+            "use strict";
+
+            const hubConnection = new signalR.HubConnectionBuilder().withUrl("/chat").build();
+            let connectionId = "";
+
+            document.getElementById("btnSend").addEventListener("click", function (e) {
+                e.preventDefault();
+                let message = document.getElementById("textBox").value;
+                let userName = document.getElementById("userName").value;
+                //let group = document.getElementById("group").value;
+                console.log(userName);
+                hubConnection.invoke("PublicSingle", userName, message, /*group,*/ connectionId);
+            });
+
+            hubConnection.on("GetMessage", function (userName, message) {
+
+                console.log("Getting message");
+
+                let elemName = document.createElement("label");
+                elemName.appendChild(document.createTextNode(userName + ': '));
+                let elemMessage = document.createElement("span");
+                elemMessage.appendChild(document.createTextNode(message));
+                let elem = document.createElement("div");
+                elem.classList.add("message");
+                elem.append(elemName);
+                elem.append(elemMessage);
+                document.getElementById("chat").appendChild(elem);
+
+                console.log("Getting end");
+            });
+
+
+            hubConnection.start().then(() => {
+                // после соединения получаем id подключения
+                console.log(hubConnection.connectionId);
+                connectionId = hubConnection.connectionId;
+            });
+            </script>*@
+    
+}

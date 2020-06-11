@@ -17,33 +17,48 @@ namespace AirTalk.Services.CommandTranslator
             cmdToAction.Add("logout", new cmdInfo("Terminal/logout", false, true));
             cmdToAction.Add("chatmode", new cmdInfo("Terminal/chatmode", true, false,
                 new Dictionary<string, Type> { { "state", typeof(bool) } }));
-            cmdToAction.Add("select", new cmdInfo("select", false, false,
+            cmdToAction.Add("select", new cmdInfo("Terminal/select", false, false,
                 new Dictionary<string, Type> { { "themeId", typeof(int) } }));
             cmdToAction.Add("clear", new cmdInfo("Terminal/clear", false, true));
         }
         public cmdResponse ReadCommand(string request)
         {
+            string errorMes = "";
             cmdRequest cmdRequest = new cmdRequest(request);
             try
             {
+                if (!cmdToAction.ContainsKey(cmdRequest.cmdCommand))
+                {
+                    errorMes = "unknown command";
+                    throw new Exception(errorMes);
+                }
+
                 var cmdInfo = cmdToAction[cmdRequest.cmdCommand];
                 if (cmdInfo.requireParams && !cmdRequest.cmdCommandParams.Any())
-                    throw new Exception();
+                {
+                    errorMes = "command needs parameters";
+                    throw new Exception(errorMes);
+                }
                 if (cmdInfo.noParams && cmdRequest.cmdCommandParams.Any())
-                    throw new Exception();
-
+                {
+                    errorMes = "command does not support params";
+                    throw new Exception(errorMes);
+                }
                 if (cmdRequest.cmdCommandParams.Length < 1)
                     return new cmdResponse(cmdInfo);
 
                 bool paramsMatched= TryMatchParams(cmdInfo, cmdRequest, out Dictionary<string, string> keyParam);
                 if (!paramsMatched)
-                    throw new Exception();
+                {
+                    errorMes = "command parameters matching error";
+                    throw new Exception(errorMes);
+                }
                 
                 return new cmdResponse(cmdInfo, keyParam);
             }
-            catch
+            catch(Exception ex)
             {
-                return cmdResponse.getCustomResponse("error", new Dictionary<string, string> { {"mes","unknown or incorrect command" } });
+                return cmdResponse.getCustomResponse("Terminal/error", new Dictionary<string, string> { { "mes", ex.Message } });
             }
         }
         private bool TryMatchParams(cmdInfo cmdInfo, cmdRequest cmdRequest, out Dictionary<string, string> keyParam)

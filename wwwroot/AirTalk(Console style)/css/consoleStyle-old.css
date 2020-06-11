@@ -1,7 +1,6 @@
 *{
     box-sizing: border-box;
     font-family: 'Jura';
-    outline:none;
 }
 html, body {
     position: fixed;
@@ -13,19 +12,14 @@ textarea:focus, input:focus{
     outline: none;
 }
 .font-small{
-    font-size: max(6px,1.25vmin);
-}
-.font-small-medium{
-
-    font-size: max(9px,1.75vmin);
+    font-size: 1.25vmin;
 }
 .font-medium{
-    font-size: max(12px, 2.5vmin);
+    font-size: 2.5vmin;
 }
 .font-big{
-    font-size: max(24px, 5vmin);
+    font-size: 5vmin;
 }
-
 .toolbar{
     position: fixed;
     left: 0%;
@@ -44,31 +38,20 @@ textarea:focus, input:focus{
     background-size: 0.375em 0.375em,
      0.375em 0.375em, 100% 100%;
 }
-.toolbar .toolbar-button-chatmode{
-    display: block;
-    position: absolute;
-    bottom: 10%;
-    margin-left: auto;
-    width: max(20px, 4vmin);
-    height: max(20px, 4vmin);
-    border: 1px outset rgb(124, 124, 124);
-    border-radius: 50%;
-    background-color: rgba(134, 134, 134, 0.5);
+.toolbar .toolbar-button{
+    flex: 1;
+    border: 2px solid springgreen;
+    margin-top: 10px;
+    width: 80%;
+    
 }
-.toolbar .toolbar-button-chatmode.on{
-    animation-name: bg-clr-green-bloom;
-    animation-duration: 3s;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
+.toolbar-button :active{
+
 }
 
-.toolbar .toolbar-button-chatmode.off{
-    animation-name: bg-clr-yellow-bloom;
-    animation-duration: 3s;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
-}
+.toolbar-button :disabled{
 
+}
 .container-console{
     right: 0%;
     position: absolute;
@@ -83,7 +66,7 @@ textarea:focus, input:focus{
     flex-flow: row nowrap;
     justify-items: flex-start;
     background-color: #3d3d3d;
-    height: 4vmin;
+    min-height: 4vmin;
     width: 100%;
     align-items: center;
     padding: 0.5vmin;
@@ -92,7 +75,6 @@ textarea:focus, input:focus{
     border-top: none;
     border-right: none;
     border-left: none;
-    min-height: 0.5cm;
     
 }
 .console-header .logo{
@@ -106,88 +88,20 @@ textarea:focus, input:focus{
     margin-left: 1vmin;
 }
 .container-console .console-output{
-    width: 60%;
-    float: left;
-}
-.container-console .console-output div{
-}
-
-.container-console .themebox{
-    position: fixed;
-    right: 0%;
-    float: right;
-    height: 100%;
-    width: 40%;
-    border: 2px solid darkgoldenrod;
-    border-bottom: none;
-    border-top: none;
-}
-.container-console .themebox .console-header{
-    padding: 0pc;
-    display: flex;
-    flex-flow: row wrap;
-    align-items: stretch;
-    justify-items: left;
-    position: relative;
-    background-color: #3d3d3d;
-    height: 4vmin;
-    min-height: 0.5cm;
     width: 100%;
-
 }
-.container-console .themebox .console-header .tab{
-    flex: 1;
-    display: inline-block;
-    position: relative;
-    min-width: 3cm;
-    border: 1px solid rgba(211, 211, 211, 0.5);
-    border-left: none;
-
-}
-.tab span{
-    display: inline-block;
-    vertical-align: middle;
-    width: 80%;
-    overflow: hidden;
-}
-.tab button.btn-close{
-    display: inline-block;
-    position: absolute;
-    font: max( 10px, 2vmin) 900 italic;
-    width: max(20px, 20%);
-    height: max(20px, 50%);
-    top: 0px;
-    right: 0px;
-    color: darksalmon;
-    background: none;
-    border: 2px solid rgba(211, 211, 211, 0.5);
-    border-top: none;
-    border-right: none;
-    justify-content: center;
-    align-content: center;
-    margin-left: 15px;
-    padding: 0;
-}
-.tab.selected{
-    background-color: rgba(255, 255, 255, 0.199);
-}
-.container-console .themebox .console-header .tab .btn-close{
-
-}
-
-
 .container-console .console-input-container{
     display: flex;
     flex-flow: row nowrap;
-    position: fixed;
+    position: absolute;
     min-height: 10%;
     height: 25vmin;
     bottom: 0px;
-    width: 55%;
+    width: 100%;
 }
 .console-input-container .keyboard{
     display: block;
-    width: 100%;
+    flex: 8;
 }
 .keyboard textarea{
     padding: 2%;
@@ -205,7 +119,6 @@ textarea:focus, input:focus{
     flex: 3;
 }
 
-
 .txt-console-orange{
     animation-name: clr-orange-bloom;
     animation-duration:  3s;
@@ -218,16 +131,6 @@ textarea:focus, input:focus{
     animation-duration:  10s;
     animation-iteration-count: infinite;
 }
-
-@keyframes bg-clr-yellow-bloom{
-    from{background-color:rgba(255, 217, 0, 0.3);}
-    to{background-color: rgba(255, 217, 0, 0.65);}
-}
-@keyframes bg-clr-green-bloom{ 
-    from {background-color:rgba(56, 128, 53, 0.603);}
-    to {background-color: rgba(102, 255, 112, 0.5);}
-}
-
 @keyframes clr-green-bloom{
     from {color:rgb(4, 61, 33);}
     to {color: rgba(102, 255, 112, 0.5);}
