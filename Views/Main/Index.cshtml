@@ -7,7 +7,7 @@
     }
 }
 <div class="toolbar">
-    <button class="toolbar-button-chatmode off"></button>
+    <button id="btn_chat" class="toolbar-button-chatmode off"></button>
 </div>
 <div class="container-console">
     <div class="console-header font-medium">
@@ -18,7 +18,12 @@
     <div class="font-medium">
 
         <div id="output" class="console-output txt-console-orange">
-            <div>welocoime</div>
+            <div id="terminal">
+                <div>~Welocome</div>
+            </div>
+            <div id="chatbox" hidden>
+                <div>Here chatbox</div>
+            </div>
         </div>
 
         <div class="console-input-container">
@@ -29,40 +34,8 @@
     </div>
     <div class="themebox">
         <div id="themeTabs" class="console-header txt-console-orange font-medium">
-            <div class="tab selected">
-                <span>
-                    Politicans
-                </span>
-                <button class="btn-close">
-                    X
-                </button>
-            </div>
-            <div class="tab">
-                <span>
-                    airTalk
-                </span>
-                <button class="btn-close">
-                    X
-                </button>
-            </div>
-            <div class="tab">
-                <span>
-                    airTalk
-                </span>
-                <button class="btn-close">
-                    X
-                </button>
-            </div>
-            <div class="tab">
-                <span>
-                    airTalk
-                </span>
-                <button class="btn-close">
-                    X
-                </button>
-            </div>
         </div>
-        <div id="theme-body" style="background-color:antiquewhite">
+        <div id="theme_body" style="background-color:antiquewhite">
 
         </div>
     </div>
@@ -71,36 +44,163 @@
 
 
 @section Scripts{
-@*Initialyzing script*@
-<script>
-    $(function () {
-        $("#test").click(function () {
-            
+    @*ChatScript*@
+    <script>
+        let chatmode = false;
+        let hubConnection = new signalR.HubConnectionBuilder().withUrl("/chat").build();
+        let connectionId = "";
+
+        hubConnection.start().then(() => {
+            // после соединения получаем id подключения
+            console.log(hubConnection.connectionId);
+            connectionId = hubConnection.connectionId;
         });
+
+        hubConnection.on("getMessageR", function (themeId, userName, message) {
+            console.log("getting");
+            let messageDiv = document.createElement("div");
+            let innerText = document.createTextNode('~ ' + userName + ': ' + message);
+            messageDiv.append(innerText);
+            $('#chatbox [data-theme-id="' + themeId + '"]').append(messageDiv);
+        });
+
+        let sendMessageR = function (themeId, userName, message) {
+            console.log('sending');
+            hubConnection.invoke("PublicSingle", themeId, userName, message);
+        };
 
         $('#input').keypress(function (e) {
-            if (e.keyCode == 13) {
-                let cmd = $(this).val();
+            if (e.keyCode == 13 && chatmode == true) {
                 e.preventDefault();
-                addTextToConsole(cmd);
+                let message = $(this).val();
+                let userName = $("#current_user").text();
+                let themeId = $("#themeTabs .tab.selected").attr('data-theme-id');
                 $(this).val('');
-                sendCommandToTerminal(cmd);
+                sendMessageR(themeId, userName, message);
             }
         });
-        
-        //$('.btn-close').click(function (e) {
-        //    e.preventDefault();
-        //    closeTheme(this.parentElement);
-        //});
 
-        $('#themeTabs').on('click', '.btn-close', function () {
-            closeTheme(this);
+
+        var closeTheme = function (tab) {
+            $(tab.parentElement).remove();
+            let id = $(tab.parentElement).attr('data-theme-id');
+            $('#theme_body [data-theme-id="' + id + '"]').remove();
+            hubConnection.invoke("Close", id.toString());
+            $('#chatbox [data-theme-id]').remove();
+            sendAjax("/Terminal/deselect", { id: id });
+        };
+
+        var selectTheme = function (tab) {
+            $('.tab.selected').removeClass('selected');
+            $(tab).addClass('selected');
+            let id = $(tab).attr('data-theme-id');
+            $('#theme_body [data-theme-id]').hide();
+            $('#chatbox [data-theme-id]').hide();
+            $('[data-theme-id="' + id + '"]').show();
+        };
+
+        var updateChats = function (session) {
+
+            let addThemeTab = function (themeModel) {
+
+                let tabElem = document.createElement("div");
+                tabElem.classList.add("tab");
+                tabElem.setAttribute("data-theme-id", themeModel.id);
+
+                let span = document.createElement("span");
+                span.textContent = themeModel.name;
+                tabElem.append(span);
+
+                let body = document.createElement('div');
+                body.textContent = themeModel.body;
+                body.setAttribute("data-theme-id", themeModel.id);
+
+                let btn = document.createElement("button");
+                btn.textContent = "X";
+                btn.classList.add("btn-close");
+                tabElem.append(btn);
+
+                $("#themeTabs").append(tabElem);
+                $("#theme_body").append(body);
+                $('.themebox .tab').on('click', function () {
+                    selectTheme(this);
+                });
+                selectTheme(tabElem);
+            };
+
+            let addChatToChatbox = function (themeModel) {
+                let chatView = document.createElement('div');
+                chatView.setAttribute("data-theme-id", themeModel.id);
+                $('#chatbox').append(chatView);
+            };
+
+
+            let allThemes = JSON.parse(session["themes"]);
+            for (let i = 0; i < allThemes.length; i++) {
+                let tempTheme = allThemes[i];
+                let tempAttr = '[data-theme-id="' + tempTheme.id + '"]';
+                let checker = $('.tab').is(tempAttr);
+                if (checker == false) {
+                    addThemeTab(tempTheme);
+                    addChatToChatbox(tempTheme);
+                    hubConnection.invoke("Open", tempTheme.id.toString());
+                }
+            }
+        };
+
+    </script>
+    @*Initialyzing script*@
+    <script>
+
+
+        $(function () {
+            $("#test").click(function () {
+                let textDiv = document.createElement("div");
+                let innerText = document.createTextNode('~ ' + 'userName' + ': ' + 'message');
+                textDiv.append(innerText);
+                $("#chatbox").append(textDiv);
+            });
+
+            $('#btn_chat').click(function () {
+                if (chatmode == false) {
+                    chatmode = true;
+                    this.classList.remove('off');
+                    this.classList.add('on');
+                    $('#terminal').hide();
+                    $('#chatbox').show();
+                }
+                else {
+                    chatmode = false;
+                    this.classList.remove('on');
+                    this.classList.add('off');
+                    $('#chatbox').hide();
+                    $('#terminal').show();
+                }
+            });
+
+            $('#input').keypress(function (e) {
+                if (e.keyCode == 13 && chatmode == false) {
+                    let cmd = $(this).val();
+                    e.preventDefault();
+                    addTextToConsole(cmd);
+                    $(this).val('');
+                    sendCommandToTerminal(cmd);
+                }
+            });
+
+            //$('.btn-close').click(function (e) {
+            //    e.preventDefault();
+            //    closeTheme(this.parentElement);
+            //});
+
+            $('#themeTabs').on('click', '.btn-close', function () {
+                closeTheme(this);
+            });
+            $('.themebox .tab').on('click', function () {
+                selectTheme(this);
+            });
         });
-        $('.themebox .tab').on('click', function () {
-            selectTheme(this);
-        });
-    });
-</script>
+    </script>
     @*cmdTranslatorScript*@
     <script>
 
@@ -143,7 +243,7 @@
                         let inlineData = terminalResult[i].inlineParams;
 
                         if (type == "view") {
-                            $("#output").append(context);
+                            $("#terminal").append(context);
                             continue;
                         }
 
@@ -167,13 +267,13 @@
                             continue;
                         }
 
-                        console.log("unkmown type of response");
+                        console.log("unknown type of response");
                     }
 
                 }
                 catch (error) {
-                    console.log("response error");
-                    $('#output').append(response);
+                    console.log("response error: " + error);
+                    $('#terminal').append(response);
                 }
             };
         }
@@ -182,76 +282,15 @@
     </script>
     @*JS client commands*@
     <script>
-        var test = function (tab) {
-            alert("test")
-        };
-
-        var closeTheme = function (tab) {
-            $(tab.parentElement).remove();
-            let id = $(tab.parentElement).attr('data-theme-id');
-            $('#theme-body [data-theme-id="' + id + '"]').remove();
-            sendAjax("/Terminal/deselect", { id: id });
-        };
-
-        var selectTheme = function (tab) {
-            $('.tab.selected').removeClass('selected');
-            $(tab).addClass('selected');
-            let id = $(tab).attr('data-theme-id');
-            $('#theme-body [data-theme-id]').hide();
-             $('[data-theme-id="' + id + '"]').show();
-
-        };
-
-        var updateThemesView = function (session) {
-
-            let addTheme = function (themeModel) {
-
-                let elem = document.createElement("div");
-                elem.classList.add("tab");
-                elem.setAttribute("data-theme-id", themeModel.id);
-
-                let span = document.createElement("span");
-                span.textContent = themeModel.name;
-                elem.append(span);
-
-                let body = document.createElement('div');
-                body.textContent = themeModel.body;
-                body.setAttribute("data-theme-id", themeModel.id);
-
-                let btn = document.createElement("button");
-                btn.textContent = "X";
-                btn.classList.add("btn-close");
-                elem.append(btn);
-
-                $("#themeTabs").append(elem);
-                $("#theme-body").append(body);
-                $('.themebox .tab').on('click', function () {
-                    selectTheme(this);
-                });
-                selectTheme(elem);
-            };
-
-            console.log(session["themes"]);
-
-            let allThemes = JSON.parse(session["themes"]);
-            for (let i = 0; i < allThemes.length; i++) {
-                let tempTheme = allThemes[i];
-                let tempAttr = '[data-theme-id="' + tempTheme.id + '"]';
-                let checker = $('.tab').is(tempAttr);
-                if (checker == false) {
-                    addTheme(tempTheme);
-                }
-            }
-        };
-
         var addTextToConsole = function (text) {
             let textDiv = document.createElement("div");
             let innerText = document.createTextNode('~ ' + text);
             textDiv.append(innerText);
-            $("#output").append(textDiv);
+            $("#terminal").append(textDiv);
         };
+
         var clear = function () {
-            $("#output").empty();
+            $("#terminal").empty();
         }
         var updateUserInfo = function (session = null) {
             if (session == null) {
@@ -263,7 +302,6 @@
                     userName = "unsigned";
                 }
                 $("#current_user").empty().append(document.createTextNode(userName));
-                //$("#current_theme").empty().append(document.createTextNode(session["current_theme"]));
             }
         };
     </script>
@@ -281,45 +319,4 @@
             sendAjax("Account/Login", data);
         };
     </script>
-    @*chatScript*@
-    @*
-        <script>
-                "use strict";
-                const hubConnection = new signalR.HubConnectionBuilder().withUrl("/chat").build();
-                let connectionId = "";
-
-                document.getElementById("btnSend").addEventListener("click", function (e) {
-                    e.preventDefault();
-                    let message = document.getElementById("textBox").value;
-                    let userName = document.getElementById("userName").value;
-                    //let group = document.getElementById("group").value;
-                    console.log(userName);
-                    hubConnection.invoke("PublicSingle", userName, message, /*group,*/ connectionId);
-                });
-
-                hubConnection.on("GetMessage", function (userName, message) {
-
-                    console.log("Getting message");
-
-                    let elemName = document.createElement("label");
-                    elemName.appendChild(document.createTextNode(userName + ': '));
-                    let elemMessage = document.createElement("span");
-                    elemMessage.appendChild(document.createTextNode(message));
-                    let elem = document.createElement("div");
-                    elem.classList.add("message");
-                    elem.append(elemName);
-                    elem.append(elemMessage);
-                    document.getElementById("chat").appendChild(elem);
-
-                    console.log("Getting end");
-                });
-
-
-                hubConnection.start().then(() => {
-                    // после соединения получаем id подключения
-                    console.log(hubConnection.connectionId);
-                    connectionId = hubConnection.connectionId;
-                });
-            </script>
-    *@
 }

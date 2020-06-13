@@ -93,9 +93,9 @@ namespace AirTalk.Controllers
                     themeList.Add(themeModel);
                 }
                 HttpContext.Session.Set<List<Theme>>("themes", themeList);
-                //HttpContext.Session.SetInt32("currentThemeId", themeId.Value);
+                var messages = from m in db.messages join t in db.themes on m.themeId equals t.id orderby m.time select m; //later
                 var session = HttpContext.Session.SessionInfo();
-                terminalResultBuilder.AddJSFuncModel("updateThemesView", session);
+                terminalResultBuilder.AddJSFuncModel("updateChats", session);
                 return Json(terminalResultBuilder.Build());
             }
             else

@@ -6,43 +6,45 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
 using AirTalk.Models.DBModels;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using AirTalk.Services;
 
 
 namespace AirTalk
 {
     public class ChatHub : Hub
     {
-        ChatLogger chatLogger;
-
-        public ChatHub( ChatLogger chatLogger)
+        MainDbContext db;
+        ILogger<ChatHub> logger;
+        public ChatHub(ILogger<ChatHub> logger, MainDbContext db)
         {
-            this.chatLogger = chatLogger;
+            this.logger = logger;
+            this.db = db;
         }
-
-        public async Task PublicSingle(string userName, string message, string connectionId)
+        public async Task PublicSingle(string themeId, string userName, string message )
         {
-            var groupId = Context.GetHttpContext().Session.GetInt32("currentThemeId").ToString();
-            await Clients.Group(groupId).SendAsync("GetMessage", userName, message);
+            await Clients.Group(themeId).SendAsync("getMessageR", themeId, userName, message);
         }
         public async Task PublicAll(string userName, string message)
         {
-            await Clients.All.SendAsync("GetMessage", userName, message);
+            await Clients.All.SendAsync("getMessageR", userName, message);
+        }
+        public async Task Close(string themeId)
+        {
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, themeId);
+        }
+        public async Task Open(string themeId)
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, themeId);
         }
         public override async Task OnConnectedAsync()
         {
-            var context = Context.GetHttpContext();
-            chatLogger.Connected(context);
-            await Groups.AddToGroupAsync(Context.ConnectionId, context.Session.GetInt32("currentThemeId").ToString());
             await base.OnConnectedAsync();
-            //GetChatBinderInfo();
         }
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             var context = Context.GetHttpContext();
-            chatLogger.Disconnected(context);
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, context.Session.GetInt32("currentThemeId").ToString());
             await base.OnDisconnectedAsync(exception);
-            //GetChatBinderInfo();
         }
     }
 }
