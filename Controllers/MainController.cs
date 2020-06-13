@@ -33,14 +33,6 @@ namespace AirTalk.Controllers
         //[Route("Main/Index/{id?}")]
         public IActionResult Index()
         {
-            //var id = HttpContext.Session.GetInt32("currentThemeId");
-
-            //mainVM = new MainInfoViewModel(this.db);
-            //mainVM.currentUser = this.db.users.First(u => u.login == User.Identity.Name);
-
-            //if (id != null && id.Value > 0)
-            //    mainVM.currentTheme = db.themes.First(t => t.id == id);
-
             return View();
         }
         public IActionResult Account()

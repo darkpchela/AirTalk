@@ -47,22 +47,48 @@
     @*ChatScript*@
     <script>
         let chatmode = false;
-        let hubConnection = new signalR.HubConnectionBuilder().withUrl("/chat").build();
+        let hubConnection;
         let connectionId = "";
 
+        let createHubConnection = function () {
+            let connection = new signalR.HubConnectionBuilder().withUrl("/chat").build();
+            connection.on("getMessageR", function (themeId, userName, message) {
+                console.log("getting");
+                let messageDiv = document.createElement("div");
+                let innerText = document.createTextNode('~ ' + userName + ': ' + message);
+                messageDiv.append(innerText);
+                $('#chatbox [data-theme-id="' + themeId + '"]').append(messageDiv);
+            });
+            return connection;
+        };
+
+        hubConnection = createHubConnection();
         hubConnection.start().then(() => {
-            // после соединения получаем id подключения
             console.log(hubConnection.connectionId);
             connectionId = hubConnection.connectionId;
+            sendAjax("Account/GetSessionInfo", null, function (response) {
+                let session = JSON.parse(response);
+                updateChats(session);
+            });
         });
 
-        hubConnection.on("getMessageR", function (themeId, userName, message) {
-            console.log("getting");
-            let messageDiv = document.createElement("div");
-            let innerText = document.createTextNode('~ ' + userName + ': ' + message);
-            messageDiv.append(innerText);
-            $('#chatbox [data-theme-id="' + themeId + '"]').append(messageDiv);
-        });
+        var reloadHubConnection = function () {
+            hubConnection.stop();
+            hubConnection = createHubConnection();
+            hubConnection.start().then(() => {
+                console.log(hubConnection.connectionId);
+                connectionId = hubConnection.connectionId;
+                sendAjax("Account/GetSessionInfo", null, function (response) {
+                    let session = JSON.parse(response);
+                    updateChats(session);
+                });
+                $('#themeTabs [data-theme-id]').each(function () {
+                    let id = $(this).attr('data-theme-id');
+                    hubConnection.invoke("Open", id);
+                });
+            });
+            
+        };
 
         let sendMessageR = function (themeId, userName, message) {
             console.log('sending');
@@ -86,7 +112,7 @@
             let id = $(tab.parentElement).attr('data-theme-id');
             $('#theme_body [data-theme-id="' + id + '"]').remove();
             hubConnection.invoke("Close", id.toString());
-            $('#chatbox [data-theme-id]').remove();
+            $('#chatbox [data-theme-id="' + id + '"]').remove();
             sendAjax("/Terminal/deselect", { id: id });
         };
 
@@ -102,7 +128,6 @@
         var updateChats = function (session) {
 
             let addThemeTab = function (themeModel) {
-
                 let tabElem = document.createElement("div");
                 tabElem.classList.add("tab");
                 tabElem.setAttribute("data-theme-id", themeModel.id);
@@ -134,16 +159,17 @@
                 $('#chatbox').append(chatView);
             };
 
-
-            let allThemes = JSON.parse(session["themes"]);
-            for (let i = 0; i < allThemes.length; i++) {
-                let tempTheme = allThemes[i];
-                let tempAttr = '[data-theme-id="' + tempTheme.id + '"]';
-                let checker = $('.tab').is(tempAttr);
-                if (checker == false) {
-                    addThemeTab(tempTheme);
-                    addChatToChatbox(tempTheme);
-                    hubConnection.invoke("Open", tempTheme.id.toString());
+            if (session['themes'] != null) {
+                let allThemes = JSON.parse(session["themes"]);
+                for (let i = 0; i < allThemes.length; i++) {
+                    let tempTheme = allThemes[i];
+                    let tempAttr = '[data-theme-id="' + tempTheme.id + '"]';
+                    let checker = $('.tab').is(tempAttr);
+                    if (checker == false) {
+                        addThemeTab(tempTheme);
+                        addChatToChatbox(tempTheme);
+                        hubConnection.invoke("Open", tempTheme.id.toString());
+                    }
                 }
             }
         };
@@ -155,10 +181,8 @@
 
         $(function () {
             $("#test").click(function () {
-                let textDiv = document.createElement("div");
-                let innerText = document.createTextNode('~ ' + 'userName' + ': ' + 'message');
-                textDiv.append(innerText);
-                $("#chatbox").append(textDiv);
+                console.log(document.cookie);
+                //[.AirTalk.UserSession]);
             });
 
             $('#btn_chat').click(function () {
@@ -188,14 +212,10 @@
                 }
             });
 
-            //$('.btn-close').click(function (e) {
-            //    e.preventDefault();
-            //    closeTheme(this.parentElement);
-            //});
-
             $('#themeTabs').on('click', '.btn-close', function () {
                 closeTheme(this);
             });
+
             $('.themebox .tab').on('click', function () {
                 selectTheme(this);
             });
@@ -210,7 +230,7 @@
             sendAjax(context, data);
         };
 
-        var sendAjax = function (url, data) {
+        var sendAjax = function (url, data, succsesFunc = null) {
             $.ajax({
                 type: "POST",
                 url: url,
@@ -224,8 +244,13 @@
                     $('#input').focus();
                 },
                 success: function (response) {
-                    //addTextToConsole(response);
-                    getResponse(response);
+                    if (succsesFunc == null) {
+                        getResponse(response);
+                    }
+                    else {
+                        succsesFunc(response);
+                    }
+                    
                 },
                 error: function (req, status, error) {
                     addTextToConsole(error);
@@ -249,10 +274,6 @@
 
                         if (type == "js-inline") {
                             console.log(inlineData);
-                            //var args = [];
-                            //for (var key in data) {
-                            //    args.push(data[key]);
-                            //}
                             window[context].apply(this, inlineData);
                             continue;
                         }
@@ -292,17 +313,13 @@
         var clear = function () {
             $("#terminal").empty();
         }
-        var updateUserInfo = function (session = null) {
-            if (session == null) {
-                sendAjax("Account/GetSessionInfo");
-            }
-            else {
+
+        var updateUserInfo = function (session) {
                 let userName = session["login"];
-                if (userName == null) {
+                if (session==null||userName == null) {
                     userName = "unsigned";
                 }
                 $("#current_user").empty().append(document.createTextNode(userName));
-            }
         };
     </script>
     @*Ajax login script*@

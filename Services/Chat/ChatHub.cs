@@ -8,6 +8,7 @@ using AirTalk.Models.DBModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using AirTalk.Services;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace AirTalk
@@ -21,9 +22,19 @@ namespace AirTalk
             this.logger = logger;
             this.db = db;
         }
+
+        [Authorize]
         public async Task PublicSingle(string themeId, string userName, string message )
         {
             await Clients.Group(themeId).SendAsync("getMessageR", themeId, userName, message);
+            Message mes = new Message();
+            mes.text = message;
+            mes.themeId = Convert.ToInt32(themeId);
+            var userSender = db.users.First(u=>u.login==userName);
+            mes.userSenderId = userSender.id;
+            mes.time = DateTime.UtcNow;
+            db.messages.Add(mes);
+            await db.SaveChangesAsync();
         }
         public async Task PublicAll(string userName, string message)
         {

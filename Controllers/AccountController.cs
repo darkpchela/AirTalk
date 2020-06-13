@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using AirTalk.Services;
+using System.Text.Json;
 namespace AirTalk.Controllers
 {
     public class AccountController : Controller
@@ -37,18 +38,14 @@ namespace AirTalk.Controllers
             try
             {
                 checker = await db.users.FirstAsync(u => u.login == user.loginOrEmail || u.email == user.loginOrEmail);
+                if (user.password != checker.password)
+                {
+                    ModelState.AddModelError(nameof(user.password), "Incorrect password");
+                }
             }
             catch
-            { }
-
-            if (checker == null)
-            {
+            { 
                 ModelState.AddModelError(nameof(user.loginOrEmail), "Account is not exists");
-            }
-            else
-            if (user.password != checker.password)
-            {
-                ModelState.AddModelError(nameof(user.password), "Incorrect password");
             }
 
             if (ModelState.IsValid)
@@ -59,7 +56,9 @@ namespace AirTalk.Controllers
                 HttpContext.Session.SetString("login", checker.login);
                 HttpContext.Session.SetInt32("chatmode", 0);
                 //HttpContext.Session.SetString("rights",checker.rigths.ToString());
-                resultBuilder.AddJSFuncModel("updateUserInfo");
+                var session = HttpContext.Session.SessionInfo();
+                resultBuilder.AddJSFuncModel("updateUserInfo", session);
+                resultBuilder.AddJSFuncInline("reloadHubConnection");
                 return Json(resultBuilder.Build());
             }
             resultBuilder.AddAspView(this,"SignIn", user);
@@ -68,21 +67,24 @@ namespace AirTalk.Controllers
         }
 
         [HttpPost]
-        public IActionResult GetSessionInfo()
+        public async Task<IActionResult> Logout()
         {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            HttpContext.Session.SetString("login", "unsigned");
             var session = HttpContext.Session.SessionInfo();
             resultBuilder.AddJSFuncModel("updateUserInfo", session);
+            resultBuilder.AddJSFuncInline("reloadHubConnection");
             return Json(resultBuilder.Build());
         }
 
         [HttpPost]
-        public async Task<IActionResult> Logout()
+        public IActionResult GetSessionInfo()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            HttpContext.Session.Clear();
-            resultBuilder.AddJSFuncModel("updateUserInfo", null);
-            return Json(resultBuilder.Build());
+            var session = HttpContext.Session.SessionInfo();
+            //resultBuilder.AddJSFuncModel("updateUserInfo", session);
+            return Json(session);
         }
+
 
         private async Task Authenticate(string loginOrEmail)
         {
