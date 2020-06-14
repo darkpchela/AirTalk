@@ -205,7 +205,12 @@ textarea:focus, input:focus{
     flex: 3;
 }
 
-
+.txt-console-green {
+    animation-name: clr-green-bloom;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
 .txt-console-orange{
     animation-name: clr-orange-bloom;
     animation-duration:  3s;

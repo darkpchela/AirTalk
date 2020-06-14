@@ -77,15 +77,6 @@ namespace AirTalk.Controllers
             return Json(resultBuilder.Build());
         }
 
-        [HttpPost]
-        public IActionResult GetSessionInfo()
-        {
-            var session = HttpContext.Session.SessionInfo();
-            //resultBuilder.AddJSFuncModel("updateUserInfo", session);
-            return Json(session);
-        }
-
-
         private async Task Authenticate(string loginOrEmail)
         {
             var claims = new List<Claim>

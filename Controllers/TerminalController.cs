@@ -79,7 +79,7 @@ namespace AirTalk.Controllers
             if (db.themes.Any(t=>t.id==themeId))
             {
                 var themeModel = db.themes.First(t => t.id == themeId);
-                var themeList = HttpContext.Session.Get<List<Theme>>("themes");
+                List<Theme> themeList = HttpContext.Session.Get<List<Theme>>("themes");
                 if (themeList==null)
                 {
                     themeList = new List<Theme> { themeModel };
@@ -93,8 +93,14 @@ namespace AirTalk.Controllers
                     themeList.Add(themeModel);
                 }
                 HttpContext.Session.Set<List<Theme>>("themes", themeList);
-                var messages = from m in db.messages join t in db.themes on m.themeId equals t.id orderby m.time select m; //later
+                var messages = (from m in db.messages
+                                join t in db.themes on m.themeId equals t.id 
+                                join u in db.users on m.userSenderId equals u.id
+                                where themeList.Select(t=>t.id).Contains(t.id)
+                                orderby m.time 
+                                select new {userSender=u.login, m.id, m.themeId, m.time, m.text  }).ToArray(); //later
                 var session = HttpContext.Session.SessionInfo();
+                session.Add("messages", JsonSerializer.Serialize(messages));
                 terminalResultBuilder.AddJSFuncModel("updateChats", session);
                 return Json(terminalResultBuilder.Build());
             }

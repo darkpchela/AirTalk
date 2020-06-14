@@ -21,7 +21,7 @@
             <div id="terminal">
                 <div>~Welocome</div>
             </div>
-            <div id="chatbox" hidden>
+            <div id="chatbox" class="" hidden>
                 <div>Here chatbox</div>
             </div>
         </div>
@@ -35,7 +35,7 @@
     <div class="themebox">
         <div id="themeTabs" class="console-header txt-console-orange font-medium">
         </div>
-        <div id="theme_body" style="background-color:antiquewhite">
+        <div id="theme_body" class="txt-console-green">
 
         </div>
     </div>
@@ -52,6 +52,7 @@
 
         let createHubConnection = function () {
             let connection = new signalR.HubConnectionBuilder().withUrl("/chat").build();
+
             connection.on("getMessageR", function (themeId, userName, message) {
                 console.log("getting");
                 let messageDiv = document.createElement("div");
@@ -59,26 +60,11 @@
                 messageDiv.append(innerText);
                 $('#chatbox [data-theme-id="' + themeId + '"]').append(messageDiv);
             });
-            return connection;
-        };
 
-        hubConnection = createHubConnection();
-        hubConnection.start().then(() => {
-            console.log(hubConnection.connectionId);
-            connectionId = hubConnection.connectionId;
-            sendAjax("Account/GetSessionInfo", null, function (response) {
-                let session = JSON.parse(response);
-                updateChats(session);
-            });
-        });
-
-        var reloadHubConnection = function () {
-            hubConnection.stop();
-            hubConnection = createHubConnection();
-            hubConnection.start().then(() => {
-                console.log(hubConnection.connectionId);
-                connectionId = hubConnection.connectionId;
-                sendAjax("Account/GetSessionInfo", null, function (response) {
+            connection.start().then(() => {
+                console.log(connection.connectionId);
+                connectionId = connection.connectionId;
+                sendAjax("Main/GetSessionInfo", null, function (response) {
                     let session = JSON.parse(response);
                     updateChats(session);
                 });
@@ -87,6 +73,13 @@
                     hubConnection.invoke("Open", id);
                 });
             });
+            return connection;
+        };
+
+        hubConnection = createHubConnection();
+        var reloadHubConnection = function () {
+            hubConnection.stop();
+            hubConnection = createHubConnection();
             
         };
 
@@ -156,6 +149,7 @@
             let addChatToChatbox = function (themeModel) {
                 let chatView = document.createElement('div');
                 chatView.setAttribute("data-theme-id", themeModel.id);
+                chatView.classList.add("chat");
                 $('#chatbox').append(chatView);
             };
 
@@ -172,13 +166,36 @@
                     }
                 }
             }
+            //------------------------------
+            if (session['messages'] != null) {
+                let addMessageToChat = function (messageModel) {
+                    let messageId = messageModel.themeId + '_' + messageModel.id;
+                    if (!$('div').is('#' + messageId)) {
+                    let messageDiv = document.createElement("div");
+                    messageDiv.setAttribute('id', messageId);
+                    messageDiv.setAttribute("data-theme-id", messageModel.themeId);
+                    messageDiv.setAttribute('data-time', messageModel.time);
+                    let innerText = document.createTextNode('~ ' + messageModel.userSender + ': ' + messageModel.text);
+                    messageDiv.append(innerText);
+                    $('#chatbox .chat[data-theme-id="' + messageModel.themeId + '"]').append(messageDiv);
+                    }
+                };
+                console.log('start parsing messages');
+                let allMessages = JSON.parse(session['messages']);
+                    console.log("start adding messages");
+                for (let i = 0; i < allMessages.length; i++) {
+                    let message = allMessages[i];
+                    console.log(message.userSender);
+                    console.log(message.id);
+                    addMessageToChat(message);
+                }
+            }
+            //-----------------------------
         };
 
     </script>
     @*Initialyzing script*@
     <script>
-
-
         $(function () {
             $("#test").click(function () {
                 console.log(document.cookie);
@@ -253,7 +270,7 @@
                     
                 },
                 error: function (req, status, error) {
-                    addTextToConsole(error);
+                    console.log("ajax, before response error: " + error);
                 }
             });
 

@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Http;
 using AirTalk.Services;
+using System.Text.Json;
 
 namespace AirTalk.Controllers
 {
@@ -28,6 +29,24 @@ namespace AirTalk.Controllers
             this.db = db;
             this.logger = logger;
             this.resultBuilder = resultBuilder;
+        }
+
+        [HttpPost]
+        public IActionResult GetSessionInfo()
+        {
+            var session = HttpContext.Session.SessionInfo();
+            if (HttpContext.Session.Keys.Contains("themes"))
+            {
+                int[] themeList = HttpContext.Session.Get<List<Message>>("themes").Select(t => t.id).ToArray();
+                var messages = (from m in db.messages
+                                join t in db.themes on m.themeId equals t.id
+                                join u in db.users on m.userSenderId equals u.id
+                                where themeList.Contains(t.id)
+                                orderby m.time
+                                select new { userSender = u.login, m.id, m.themeId, m.time, m.text }).ToArray();
+                session.Add("messages", JsonSerializer.Serialize(messages));
+            }
+            return Json(session);
         }
 
         //[Route("Main/Index/{id?}")]
