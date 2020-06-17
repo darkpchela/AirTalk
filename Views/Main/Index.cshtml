@@ -15,27 +15,22 @@
         <div class="user" id="current_user">@current_user</div>
         <button id="test" type="button">Test</button>
     </div>
-    <div class="font-medium">
-
-        <div id="output" class="console-output txt-console-orange">
+        <div id="output" class="console-output txt-console-orange font-small-medium">
             <div id="terminal">
                 <div>~Welocome</div>
             </div>
-            <div id="chatbox" class="" hidden>
-                <div>Here chatbox</div>
+            <div id="chatbox" class="chatbox txt-console-green" style="display: none">
             </div>
-        </div>
-
         <div class="console-input-container">
             <div class="keyboard">
                 <textarea id="input" rows="1" class="txt-console-bg-gray font-medium"></textarea>
             </div>
         </div>
-    </div>
+        </div>
     <div class="themebox">
         <div id="themeTabs" class="console-header txt-console-orange font-medium">
         </div>
-        <div id="theme_body" class="txt-console-green">
+        <div id="theme_body" class="theme-body txt-console-green">
 
         </div>
     </div>
@@ -53,12 +48,16 @@
         let createHubConnection = function () {
             let connection = new signalR.HubConnectionBuilder().withUrl("/chat").build();
 
-            connection.on("getMessageR", function (themeId, userName, message) {
+            connection.on("getMessageR", function (themeId, userName, message, messageId) {
                 console.log("getting");
+                let _messageId = themeId + '_' + messageId;
                 let messageDiv = document.createElement("div");
+                messageDiv.setAttribute('id', _messageId);
+                messageDiv.classList.add('message');
                 let innerText = document.createTextNode('~ ' + userName + ': ' + message);
                 messageDiv.append(innerText);
-                $('#chatbox [data-theme-id="' + themeId + '"]').append(messageDiv);
+                $('#chatbox .chat[data-theme-id="' + themeId + '"]').append(messageDiv);
+                $('#chatbox .chat[data-theme-id="' + themeId + '"]').scrollTop(($('#chatbox .chat .message').last()).position().top);
             });
 
             connection.start().then(() => {
@@ -148,11 +147,26 @@
 
             let addChatToChatbox = function (themeModel) {
                 let chatView = document.createElement('div');
+                chatView.classList.add('chat');
                 chatView.setAttribute("data-theme-id", themeModel.id);
-                chatView.classList.add("chat");
                 $('#chatbox').append(chatView);
             };
 
+            let addMessageToChat = function (messageModel) {
+                let messageId = messageModel.themeId + '_' + messageModel.id;
+                if (!$('div').is('#' + messageId)) {
+                    let messageDiv = document.createElement("div");
+                    messageDiv.classList.add('message');
+                    messageDiv.setAttribute('id', messageId);
+                    messageDiv.setAttribute("data-theme-id", messageModel.themeId);
+                    messageDiv.setAttribute('data-time', messageModel.time);
+                    let innerText = document.createTextNode('~ ' + messageModel.userSender + ': ' + messageModel.text);
+                    messageDiv.append(innerText);
+                    $('#chatbox .chat[data-theme-id="' + messageModel.themeId + '"]').append(messageDiv);
+                }
+            };
+
+            let lastThemeId = -1;
             if (session['themes'] != null) {
                 let allThemes = JSON.parse(session["themes"]);
                 for (let i = 0; i < allThemes.length; i++) {
@@ -164,33 +178,17 @@
                         addChatToChatbox(tempTheme);
                         hubConnection.invoke("Open", tempTheme.id.toString());
                     }
+                    lastThemeId = tempTheme.id;
                 }
             }
-            //------------------------------
+
             if (session['messages'] != null) {
-                let addMessageToChat = function (messageModel) {
-                    let messageId = messageModel.themeId + '_' + messageModel.id;
-                    if (!$('div').is('#' + messageId)) {
-                    let messageDiv = document.createElement("div");
-                    messageDiv.setAttribute('id', messageId);
-                    messageDiv.setAttribute("data-theme-id", messageModel.themeId);
-                    messageDiv.setAttribute('data-time', messageModel.time);
-                    let innerText = document.createTextNode('~ ' + messageModel.userSender + ': ' + messageModel.text);
-                    messageDiv.append(innerText);
-                    $('#chatbox .chat[data-theme-id="' + messageModel.themeId + '"]').append(messageDiv);
-                    }
-                };
-                console.log('start parsing messages');
                 let allMessages = JSON.parse(session['messages']);
-                    console.log("start adding messages");
                 for (let i = 0; i < allMessages.length; i++) {
                     let message = allMessages[i];
-                    console.log(message.userSender);
-                    console.log(message.id);
                     addMessageToChat(message);
                 }
             }
-            //-----------------------------
         };
 
     </script>
@@ -205,6 +203,12 @@
             $('#btn_chat').click(function () {
                 if (chatmode == false) {
                     chatmode = true;
+                    if ($('#current_user').text() == 'unsigned') {
+                        $('#input').prop('disabled', true);
+                    }
+                    else {
+                        $('#input').prop('disabled', false);
+                    }
                     this.classList.remove('off');
                     this.classList.add('on');
                     $('#terminal').hide();
@@ -212,6 +216,7 @@
                 }
                 else {
                     chatmode = false;
+                    $('#input').prop('disabled', false);
                     this.classList.remove('on');
                     this.classList.add('off');
                     $('#chatbox').hide();
@@ -351,6 +356,20 @@
             $("#loginForm").remove();
             $("#loginScript").remove();
             sendAjax("Account/Login", data);
+        };
+
+        var registrationAjaxFunc = function () {
+            let token = $('input[name ="__RequestVerificationToken"]').val();
+            let data = {
+                __RequestVerificationToken: token,
+                login: $("#login").val(),
+                email: $("#email").val(),
+                password: $("#password").val(),
+                confirmPassword: $("#confirmPassword").val()
+            };
+            $("#registrationForm").remove();
+            $("#registationScript").remove();
+            sendAjax("Account/Registration", data);
         };
     </script>
 }

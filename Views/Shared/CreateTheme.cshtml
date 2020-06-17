@@ -1,0 +1,23 @@
+﻿@model AirTalk.Models.ViewModels.CreateThemeViewModel;
+@{
+    ViewData["Title"] = "CreateTheme";
+}
+
+<div>
+    <form asp-antiforgery="true" method="post">
+    <div>
+        <label asp-for="name">Name:</label><br />
+        <input asp-for="name" placeholder="Write here header"/>
+    </div>
+    <div>
+        <label asp-for="body">Body:</label><br />
+        <textarea asp-for="body" placeholder="Write here main message"/>
+        <input type="hidden" value=@User.Identity.Name />
+    </div>
+        <button type="submit">Create theme</button>
+    </form>
+</div>
+<script>
+
+</script>
+

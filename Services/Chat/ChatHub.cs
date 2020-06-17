@@ -26,7 +26,8 @@ namespace AirTalk
         [Authorize]
         public async Task PublicSingle(string themeId, string userName, string message )
         {
-            await Clients.Group(themeId).SendAsync("getMessageR", themeId, userName, message);
+            if (themeId == null)
+                return;
             Message mes = new Message();
             mes.text = message;
             mes.themeId = Convert.ToInt32(themeId);
@@ -35,6 +36,8 @@ namespace AirTalk
             mes.time = DateTime.UtcNow;
             db.messages.Add(mes);
             await db.SaveChangesAsync();
+            var messageId = mes.id;
+            await Clients.Group(themeId).SendAsync("getMessageR", themeId, userName, message, messageId);
         }
         public async Task PublicAll(string userName, string message)
         {

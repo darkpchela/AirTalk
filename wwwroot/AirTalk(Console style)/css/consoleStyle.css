@@ -1,7 +1,7 @@
 *{
     box-sizing: border-box;
     font-family: 'Jura';
-    outline:none;
+    outline: none;
 }
 html, body {
     position: fixed;
@@ -9,9 +9,15 @@ html, body {
     width: 100%;
     margin: 0%;
 }
-textarea:focus, input:focus{
-    outline: none;
-}
+
+::-webkit-scrollbar { width: 10px; height: 0px;}
+::-webkit-scrollbar-button {  background-color: #666 ; }
+::-webkit-scrollbar-track {  background-color: rgba(153, 153, 153, 0);}
+::-webkit-scrollbar-track-piece { background-color: #ffffff00;}
+::-webkit-scrollbar-thumb { height: 50px; background-color: rgba(102, 102, 102, 0.5); border-radius: 3px;}
+::-webkit-scrollbar-corner { background-color: #666;}
+::-webkit-resizer { background-color: rgb(102, 102, 102);}
+
 .font-small{
     font-size: max(6px,1.25vmin);
 }
@@ -69,6 +75,9 @@ textarea:focus, input:focus{
     animation-direction: alternate;
 }
 
+
+
+
 .container-console{
     right: 0%;
     position: absolute;
@@ -96,7 +105,7 @@ textarea:focus, input:focus{
     
 }
 .console-header .logo{
-
+    
     color: darkgoldenrod;
     justify-self: left;
 }
@@ -105,12 +114,64 @@ textarea:focus, input:focus{
     justify-self: right;
     margin-left: 1vmin;
 }
+
+
 .container-console .console-output{
-    width: 60%;
+    width: 58%;
+    height: 100%;
     float: left;
 }
-.container-console .console-output div{
+.container-console .console-output .chatbox{
+    display: block;
+    height: 75%;
 }
+.chatbox .chat{
+    padding: 1%;
+    display: block;
+    overflow-y: scroll;
+    width: 100%;
+    height: 100%;
+
+}
+.chat .message{
+    width: 100%;
+    display: inline-block;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    hyphens: auto;
+}
+.container-console .console-output .console-input-container{
+    display: flex;
+    flex-flow: row nowrap;
+    position: fixed;
+    height: 20%;
+    bottom: 0px;
+    width: 55%;
+}
+.console-input-container .keyboard{
+    display: block;
+    width: 100%;
+}
+.keyboard textarea{
+    padding: 2%;
+    resize: none;
+    width: 100%;
+    height: 100%;
+    border: 1px solid darkgoldenrod;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom: none;
+    background-color:rgba(255, 255, 255, 0.10);
+    color: darkgray;
+}
+.console-input-container .sidebar{
+    flex: 3;
+}
+
+
+
 
 .container-console .themebox{
     position: fixed;
@@ -130,7 +191,7 @@ textarea:focus, input:focus{
     justify-items: left;
     position: relative;
     background-color: #3d3d3d;
-    height: 4vmin;
+    height: fit-content;
     min-height: 0.5cm;
     width: 100%;
 
@@ -171,46 +232,20 @@ textarea:focus, input:focus{
 .tab.selected{
     background-color: rgba(255, 255, 255, 0.199);
 }
-.container-console .themebox .console-header .tab .btn-close{
-
+.themebox .theme-body{
+    text-align: center;
+    align-content: center;
 }
 
 
-.container-console .console-input-container{
-    display: flex;
-    flex-flow: row nowrap;
-    position: fixed;
-    min-height: 10%;
-    height: 25vmin;
-    bottom: 0px;
-    width: 55%;
-}
-.console-input-container .keyboard{
-    display: block;
-    width: 100%;
-}
-.keyboard textarea{
-    padding: 2%;
-    resize: none;
-    width: 100%;
-    height: 100%;
-    border: 1px solid darkgoldenrod;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    border-bottom: none;
-    background-color:rgba(255, 255, 255, 0.10);
-    color: darkgray;
-}
-.console-input-container .sidebar{
-    flex: 3;
-}
 
-.txt-console-green {
+.txt-console-green{
     animation-name: clr-green-bloom;
-    animation-duration: 3s;
+    animation-duration:  3s;
     animation-iteration-count: infinite;
     animation-direction: alternate;
 }
+
 .txt-console-orange{
     animation-name: clr-orange-bloom;
     animation-duration:  3s;
@@ -234,8 +269,8 @@ textarea:focus, input:focus{
 }
 
 @keyframes clr-green-bloom{
-    from {color:rgb(4, 61, 33);}
-    to {color: rgba(102, 255, 112, 0.5);}
+    from {color:rgba(9, 255, 0, 0.5);}
+    to {color: rgba(7, 226, 22, 0.753);}
 }
 @keyframes clr-orange-bloom{
     from {color: darkgoldenrod;}

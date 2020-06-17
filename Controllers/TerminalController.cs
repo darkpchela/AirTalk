@@ -42,12 +42,14 @@ namespace AirTalk.Controllers
             var result = terminalResultBuilder.Build();
             return Json(result);
         }
+        
         [HttpPost]
         public IActionResult error(string mes)
         {
             terminalResultBuilder.AddJSFuncInline("addTextToConsole",  mes);
             return Json(terminalResultBuilder.Build());
         }
+        
         [HttpPost]
         public IActionResult login()
         {
@@ -61,7 +63,12 @@ namespace AirTalk.Controllers
             terminalResultBuilder.AddAjaxFunc("Account/Logout");
             return Json(terminalResultBuilder.Build());
         }
-
+        [HttpPost]
+        public IActionResult registration()
+        {
+            terminalResultBuilder.AddAspView(this, "Registration");
+            return Json(terminalResultBuilder.Build());
+        }
         [HttpPost]
         public IActionResult select(int? themeId)
         {
@@ -70,7 +77,7 @@ namespace AirTalk.Controllers
                 var themes = db.themes.OrderBy(t => t.creationTime).Take(10);
                 foreach(var t in themes)
                 {
-                    terminalResultBuilder.AddJSFuncInline("addTextToConsole", t.name);
+                    terminalResultBuilder.AddJSFuncInline("addTextToConsole", t.name + ", id: " + t.id.ToString());
                 }
                 var result = terminalResultBuilder.Build();
                 return Json(result);
@@ -111,6 +118,7 @@ namespace AirTalk.Controllers
                 return Json(terminalResultBuilder.Build());
             }
         }
+        
         [HttpPost]
         public void deselect(int id)
         {
@@ -123,37 +131,19 @@ namespace AirTalk.Controllers
             }
             catch { }
         }
+  
         [HttpPost]
         public IActionResult clear()
         {
             terminalResultBuilder.AddJSFuncInline("clear");
             return Json(terminalResultBuilder.Build());
         }
-        //private async Task<string> RenderPartialViewToString(string viewName, object model=null)
-        //{
-        //    if (string.IsNullOrEmpty(viewName))
-        //        viewName = ControllerContext.ActionDescriptor.ActionName;
 
-        //    ViewData.Model = model;
-
-        //    using (var writer = new StringWriter())
-        //    {
-        //        ViewEngineResult viewResult =
-        //            viewEngine.FindView(ControllerContext, viewName, false);
-
-        //        ViewContext viewContext = new ViewContext(
-        //            ControllerContext,
-        //            viewResult.View,
-        //            ViewData,
-        //            TempData,
-        //            writer,
-        //            new HtmlHelperOptions()
-        //        );
-
-        //        await viewResult.View.RenderAsync(viewContext);
-
-        //        return writer.GetStringBuilder().ToString();
-        //    }
-        //}
+        [HttpPost]
+        public IActionResult createTheme()
+        {
+            terminalResultBuilder.AddAspView(this, "CreateTheme");
+            return Json(terminalResultBuilder.Build());
+        }
     }
 }

@@ -45,10 +45,7 @@ namespace AirTalk
                 options.Cookie.IsEssential = true;
             });
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-               .AddCookie(options => //CookieAuthenticationOptions
-                {
-                   options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Home/Index");
-               });
+               .AddCookie();
             //services.AddControllersWithViews();
             services.AddLogging();
             services.AddControllersWithViews();
@@ -70,8 +67,8 @@ namespace AirTalk
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();

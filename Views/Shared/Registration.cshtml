@@ -1,0 +1,34 @@
+﻿@model AirTalk.Models.ViewModels.UserRegistrationVM;
+<form id="registrationForm" asp-antiforgery="true" method="post">
+    <div>
+        <div>
+            <label>Login:</label><br/>
+            <input id="login"  asp-for="login"/>
+            <span asp-validation-for="login"></span>
+        </div>
+        <div>
+            <label>Email:</label><br />
+            <input id="email" asp-for="email"/>
+            <span asp-validation-for="email"></span>
+        </div>
+        <div>
+            <label >Password</label><br />
+            <input id="password" asp-for="password"/>
+            <span asp-validation-for="password"></span>
+        </div>
+        <div>
+            <label>Confirm password:</label><br />
+            <input id="confirmPassword" asp-for="confirmPassword"/>
+            <span asp-validation-for="confirmPassword"></span>
+        </div>
+        <button type="submit">Confirm Registration</button>
+    </div>
+</form>
+<script id="registationScript">
+    $(function () {
+        $("#registrationForm").submit(function (e) {
+            e.preventDefault();
+            registrationAjaxFunc();
+        });
+    });
+</script>

@@ -20,6 +20,8 @@ namespace AirTalk.Services.CommandTranslator
             cmdToAction.Add("select", new cmdInfo("Terminal/select", false, false,
                 new Dictionary<string, Type> { { "themeId", typeof(int) } }));
             cmdToAction.Add("clear", new cmdInfo("Terminal/clear", false, true));
+            cmdToAction.Add("create", new cmdInfo("Terminal/createTheme", false, true));
+            cmdToAction.Add("reg", new cmdInfo("Terminal/registration", false, true));
         }
         public cmdResponse ReadCommand(string request)
         {

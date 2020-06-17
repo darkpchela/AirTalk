@@ -12,12 +12,12 @@ namespace AirTalk.Models.ViewModels
     {
         [Required]
         //[RegularExpression(@"^[a-zA-Z0-9]+$")]
-        [Remote(action:"CheckLogin", controller:"Account", ErrorMessage ="This login is already in use")]
+        [Remote(action:"CheckLogin", controller:"Account", ErrorMessage = "This login is already in use")]
         [Display(Name = "Login")]
         public string login { get; set; }
 
         [EmailAddress]
-        [Remote(action:"CheckEmail",controller:"Account", ErrorMessage ="This email is already in use")]
+        [Remote(action:"CheckEmail",controller:"Account", ErrorMessage = "This email is already in use")]
         [Display(Name = "Email")]
         public string email     { get; set; }
 

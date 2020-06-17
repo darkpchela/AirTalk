@@ -25,9 +25,36 @@ namespace AirTalk.Controllers
             this.db = db;
         }
 
-        public IActionResult Registration()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Registration(UserRegistrationVM registrationVM)
         {
-            return View();
+            if (db.users.Any(u => u.login == registrationVM.login))
+                ModelState.AddModelError(nameof(registrationVM.login), "This login is already in use");
+
+            if (registrationVM.email != null && db.users.Any(u => u.email == registrationVM.email))
+                ModelState.AddModelError(nameof(registrationVM.email), "This email is already in use");
+
+            if (registrationVM.password != registrationVM.confirmPassword)
+                ModelState.AddModelError(nameof(registrationVM.password), "Passwords are not same");
+
+            if (ModelState.IsValid)
+            {
+                UserModel user = registrationVM.GetDbModel();
+                db.users.Add(user);
+                db.SaveChanges();
+                await Authenticate(user.login);
+                HttpContext.Session.SetString("login", user.login);
+                var session = HttpContext.Session.SessionInfo();
+                resultBuilder.AddJSFuncModel("updateUserInfo", session);
+                resultBuilder.AddJSFuncInline("reloadHubConnection");
+                return Json(resultBuilder.Build());
+            }
+            else
+            {
+                resultBuilder.AddAspView(this, "Registration", registrationVM);
+                return Json(resultBuilder.Build());
+            }
         }
 
         [HttpPost]
@@ -50,13 +77,9 @@ namespace AirTalk.Controllers
 
             if (ModelState.IsValid)
             {
-                //HttpContext.Session.SetString(sessionKey, checker.id.ToString());
                 await Authenticate(user.loginOrEmail);
-                HttpContext.Session.SetInt32("id", checker.id);
-                HttpContext.Session.SetString("login", checker.login);
-                HttpContext.Session.SetInt32("chatmode", 0);
-                //HttpContext.Session.SetString("rights",checker.rigths.ToString());
                 var session = HttpContext.Session.SessionInfo();
+                HttpContext.Session.SetString("login", checker.login);
                 resultBuilder.AddJSFuncModel("updateUserInfo", session);
                 resultBuilder.AddJSFuncInline("reloadHubConnection");
                 return Json(resultBuilder.Build());
@@ -92,20 +115,18 @@ namespace AirTalk.Controllers
         [AcceptVerbs("Get", "Post")]
         public IActionResult CheckLogin(string login)
         {
-            var checker = db.users.First(u => u.login == login);
-            if (checker == null)
-                return Json(true);
-            else
+            if (db.users.Any(u=>u.login==login))
                 return Json(false);
+            else
+                return Json(true);
         }
-
+        [AcceptVerbs("Get", "Post")]
         public IActionResult CheckEmail(string email)
         {
-            var checker = db.users.First(u => u.email == email);
-            if (checker == null)
-                return Json(true);
-            else
+            if (db.users.Any(u => u.email == email))
                 return Json(false);
+            else
+                return Json(true);
         }
     }
 }
