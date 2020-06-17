@@ -12,8 +12,10 @@ namespace AirTalk.Models.ViewModels
     public class CreateThemeViewModel
     {
         [Required]
+        [MinLength(3, ErrorMessage = "Too short")]
         public string name { get; set; }
         [Required]
+        [MinLength(10, ErrorMessage ="Too short")]
         public string body { get; set; }
         [Required]
         public DateTime creationTime    { get; set; }

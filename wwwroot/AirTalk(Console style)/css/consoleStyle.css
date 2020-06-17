@@ -9,7 +9,9 @@ html, body {
     width: 100%;
     margin: 0%;
 }
-
+textarea{
+    resize: none;
+}
 ::-webkit-scrollbar { width: 10px; height: 0px;}
 ::-webkit-scrollbar-button {  background-color: #666 ; }
 ::-webkit-scrollbar-track {  background-color: rgba(153, 153, 153, 0);}
@@ -87,6 +89,45 @@ html, body {
     background-color: #171624;
 }
 
+.container-console .terminal{
+    width: 100%;
+    height: 100%;
+    overflow: scroll;
+}
+
+.container-console .modal-window{
+    position: relative;
+    margin: 5vmin auto;
+    padding: 5%;
+    min-height: 30vmin;
+    height: fit-content;
+    width: fit-content;
+    align-content: center;
+    text-align: center;
+    border-radius: 5px;
+    border: 2px solid darkgoldenrod;
+}
+.modal-window input{
+    background-color: rgba(128, 128, 128, 0.2);
+    color: darkgrey;
+    max-width: 40vmin;
+}
+.modal-window button{
+    background-color: darkslategray;
+    color: darkgrey;
+    margin-top: 3vmin;
+}
+.modal-window textarea{
+    background-color: rgba(128, 128, 128, 0.2);
+    color: darkgrey;
+    height: 30vmin;
+    width: 40vmin;
+}
+.modal-window label{
+    display:inline-block;
+    margin-top:5%;
+}
+
 .container-console .console-header{
     display: flex;
     flex-flow: row nowrap;
@@ -118,12 +159,12 @@ html, body {
 
 .container-console .console-output{
     width: 58%;
-    height: 100%;
+    height: 72%;
     float: left;
 }
 .container-console .console-output .chatbox{
     display: block;
-    height: 75%;
+    height: 100%;
 }
 .chatbox .chat{
     padding: 1%;
@@ -233,8 +274,10 @@ html, body {
     background-color: rgba(255, 255, 255, 0.199);
 }
 .themebox .theme-body{
+    padding:2%;
     text-align: center;
     align-content: center;
+    overflow-y:auto;
 }
 
 

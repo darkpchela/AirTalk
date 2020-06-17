@@ -13,10 +13,9 @@
     <div class="console-header font-medium">
         <div class="logo txt-console-orange">Terminal: </div>
         <div class="user" id="current_user">@current_user</div>
-        <button id="test" type="button">Test</button>
     </div>
         <div id="output" class="console-output txt-console-orange font-small-medium">
-            <div id="terminal">
+            <div id="terminal" class="terminal">
                 <div>~Welocome</div>
             </div>
             <div id="chatbox" class="chatbox txt-console-green" style="display: none">
@@ -49,7 +48,6 @@
             let connection = new signalR.HubConnectionBuilder().withUrl("/chat").build();
 
             connection.on("getMessageR", function (themeId, userName, message, messageId) {
-                console.log("getting");
                 //Need rebuild to AddMessageToChat()
                 let _messageId = themeId + '_' + messageId;
                 let messageDiv = document.createElement("div");
@@ -86,7 +84,6 @@
         };
 
         let sendMessageR = function (themeId, userName, message) {
-            console.log('sending');
             hubConnection.invoke("PublicSingle", themeId, userName, message);
         };
 
@@ -198,11 +195,6 @@
     @*Initialyzing script*@
     <script>
         $(function () {
-            $("#test").click(function () {
-                console.log(document.cookie);
-                //[.AirTalk.UserSession]);
-            });
-
             $('#btn_chat').click(function () {
                 if (chatmode == false) {
                     chatmode = true;
@@ -293,12 +285,12 @@
                         let inlineData = terminalResult[i].inlineParams;
 
                         if (type == "view") {
+                            clear();
                             $("#terminal").append(context);
                             continue;
                         }
 
                         if (type == "js-inline") {
-                            console.log(inlineData);
                             window[context].apply(this, inlineData);
                             continue;
                         }
@@ -355,7 +347,7 @@
                 loginOrEmail: $("#login").val(),
                 password: $("#password").val()
             };
-            $("#loginForm").remove();
+            $(".modal-window").remove();
             $("#loginScript").remove();
             sendAjax("Account/Login/", data);
         };
@@ -369,7 +361,7 @@
                 password: $("#password").val(),
                 confirmPassword: $("#confirmPassword").val()
             };
-            $("#registrationForm").remove();
+            $(".modal-window").remove();
             $("#registationScript").remove();
             sendAjax("Account/Registration/", data);
         };
@@ -382,7 +374,7 @@
                 body: $("#body").val(),
                 userCreator: $("#userName").val()
             };
-            $("#createThemeForm").remove();
+            $(".modal-window").remove();
             $("#createThemeScript").remove();
             sendAjax("Main/CreateTheme/", data);
         };

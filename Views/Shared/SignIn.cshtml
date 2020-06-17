@@ -1,16 +1,21 @@
 ﻿@model UserSignInVM
+<div class="modal-window">
+
 <form id="loginForm" method="post" asp-antiforgery="true">
 
     <div>
         <label>Login:</label><br />
-        <input id="login" asp-for="loginOrEmail" placeholder="Login/Email" /><span asp-validation-for="loginOrEmail"></span>
+        <input id="login" asp-for="loginOrEmail" placeholder="Login/Email" /><br />
+        <span asp-validation-for="loginOrEmail"></span>
     </div>
     <div>
         <label>Password</label><br />
-        <input id="password" asp-for="password" placeholder="Password" /><span asp-validation-for="password"></span>
+        <input id="password" asp-for="password" placeholder="Password" /><br />
+        <span asp-validation-for="password"></span>
     </div>
     <button type="submit">Sign In</button>
 </form>
+</div>
 <script id="loginScript">
 
     $(function () {

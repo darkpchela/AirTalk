@@ -1,4 +1,6 @@
 ﻿@model AirTalk.Models.ViewModels.CreateThemeViewModel;
+<div class="modal-window">
+
 <form id="createThemeForm" asp-antiforgery="true" method="post">
     <div>
         <label  asp-for="name">Name:</label><br />
@@ -11,6 +13,7 @@
     </div>
     <button type="submit">Create theme</button>
 </form>
+</div>
 <script id="createThemeScript">
     $(function () {
         $("#createThemeForm").submit(function (e) {
