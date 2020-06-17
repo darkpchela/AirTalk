@@ -54,32 +54,7 @@ namespace AirTalk.Controllers
         {
             return View();
         }
-        public IActionResult Account()
-        {
-            return View();
-        }
 
-        public IActionResult SelectTheme(int? id)
-        {
-            if (id!=null&&db.themes.First(t=>t.id==id)!=null)
-            {
-                HttpContext.Session.SetInt32("currentThemeId", id.Value);
-                return RedirectToAction("Index");
-            }
-            else
-            {
-                HttpContext.Session.SetInt32("currentThemeId", -1);
-                mainVM = new MainInfoViewModel(this.db);
-                return View(mainVM);
-            }
-            
-        }
-
-        [HttpGet]
-        public IActionResult CreateTheme()
-        {
-            return View();
-        }
         [HttpPost]
         public IActionResult CreateTheme(CreateThemeViewModel themeViewModel)
         {
@@ -92,12 +67,12 @@ namespace AirTalk.Controllers
                 Theme newTheme = themeViewModel.GetDBModel(db.users.First(u=>u.login==User.Identity.Name).id);
                 db.themes.Add(newTheme);
                 db.SaveChanges();
-                int themeId = newTheme.id;
-
-                RedirectToAction("SelectTheme", themeId);
+                resultBuilder.AddAjaxFunc("Terminal/select", new Dictionary<string, string> { { "themeId", newTheme.id.ToString() } } );
+                return Json(resultBuilder.Build());
 
             }
-            return View();
+            resultBuilder.AddAspView(this, "CreateTheme", themeViewModel);
+            return Json(resultBuilder.Build());
         }
     }
 }

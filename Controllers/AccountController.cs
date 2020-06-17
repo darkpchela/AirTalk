@@ -78,8 +78,8 @@ namespace AirTalk.Controllers
             if (ModelState.IsValid)
             {
                 await Authenticate(user.loginOrEmail);
-                var session = HttpContext.Session.SessionInfo();
                 HttpContext.Session.SetString("login", checker.login);
+                var session = HttpContext.Session.SessionInfo();
                 resultBuilder.AddJSFuncModel("updateUserInfo", session);
                 resultBuilder.AddJSFuncInline("reloadHubConnection");
                 return Json(resultBuilder.Build());
