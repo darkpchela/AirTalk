@@ -16,7 +16,7 @@
     </div>
         <div id="output" class="console-output txt-console-orange font-small-medium">
             <div id="terminal" class="terminal">
-                <div>~Welocome</div>
+                <div>~Welcome. Type 'help', if you dont know, how to interact with this app.</div>
             </div>
             <div id="chatbox" class="chatbox txt-console-green" style="display: none">
             </div>
@@ -58,7 +58,7 @@
                 let innerText = document.createTextNode('~ ' + userName + ': ' + message);
                 messageDiv.append(innerText);
                 $('#chatbox .chat[data-theme-id="' + themeId + '"]').append(messageDiv);
-                $('#chatbox .chat[data-theme-id="' + themeId + '"]').scrollTop(($('#chatbox .chat .message').last()).position().top);
+                $('#chatbox .chat[data-theme-id="' + themeId + '"]').scrollTop(($('#chatbox .chat[data-theme-id="' + themeId + '"] .message').last()).position().top);
             });
 
             connection.start().then(() => {
@@ -376,7 +376,7 @@
             };
             $(".modal-window").remove();
             $("#createThemeScript").remove();
-            sendAjax("Main/CreateTheme/", data);
+            sendAjax("Terminal/createTheme/", data);
         };
     </script>
 }

@@ -39,6 +39,7 @@ namespace AirTalk
             var messageId = mes.id;
             await Clients.Group(themeId).SendAsync("getMessageR", themeId, userName, message, messageId);
         }
+        [Authorize]
         public async Task PublicAll(string userName, string message)
         {
             await Clients.All.SendAsync("getMessageR", userName, message);

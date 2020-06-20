@@ -15,8 +15,6 @@ namespace AirTalk.Models.DBModels
         public string login { get; set; }
         public string email     { get; set; }
         public string password  { get; set; }
-        public UserAccountRigths rigths { get; set; }
-        public bool online  { get; set; }
         public string icon { get; set; }
     }
 }

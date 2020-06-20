@@ -38,7 +38,6 @@ namespace AirTalk
             services.AddSingleton<cmdTranslator>();
             services.AddSingleton<ViewToStringConverter>();
             services.AddDistributedMemoryCache();
-            //services.AddCors();
             services.AddSession(options =>
             {
                 options.Cookie.Name = ".AirTalk.UserSession";
@@ -46,7 +45,6 @@ namespace AirTalk
             });
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                .AddCookie();
-            //services.AddControllersWithViews();
             services.AddLogging();
             services.AddControllersWithViews();
             services.AddSignalR(options=> {
@@ -55,7 +53,7 @@ namespace AirTalk
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Program> logger, MainDbContext db)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -63,7 +61,7 @@ namespace AirTalk
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Main/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
@@ -73,10 +71,6 @@ namespace AirTalk
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseSession();
-            //app.UseCors(builder => builder.WithOrigins("https://localhost:5001", "https://localhost:5000")
-            //                .AllowAnyHeader()
-            //                .AllowAnyMethod());
-            //app.UseMiddleware<ChatProviderMiddleware>();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHub<ChatHub>("/chat");

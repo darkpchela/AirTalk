@@ -16,6 +16,7 @@ using System.IO;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using AirTalk.Models.DBModels;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AirTalk.Controllers
 {
@@ -139,10 +140,42 @@ namespace AirTalk.Controllers
             return Json(terminalResultBuilder.Build());
         }
 
+        [Authorize]
         [HttpPost]
-        public IActionResult createTheme()
+        public IActionResult createTheme(CreateThemeViewModel themeViewModel)
         {
-            terminalResultBuilder.AddAspView(this, "CreateTheme");
+            if (themeViewModel == null)
+            {
+                terminalResultBuilder.AddAspView(this, "CreateTheme");
+                return Json(terminalResultBuilder.Build());
+            }
+            else
+            {
+                if (db.themes.Any(t => t.name == themeViewModel.name))
+                {
+                    ModelState.AddModelError(nameof(themeViewModel.name), "Theme with the same name already exists");
+                }
+                if (ModelState.IsValid)
+                {
+                    Theme newTheme = themeViewModel.GetDBModel(db.users.First(u => u.login == User.Identity.Name).id);
+                    db.themes.Add(newTheme);
+                    db.SaveChanges();
+                    terminalResultBuilder.AddAjaxFunc("Terminal/select", new Dictionary<string, string> { { "themeId", newTheme.id.ToString() } });
+                    return Json(terminalResultBuilder.Build());
+
+                }
+                terminalResultBuilder.AddAspView(this, "CreateTheme", themeViewModel);
+                return Json(terminalResultBuilder.Build());
+            }
+        }
+        public IActionResult help()
+        {
+            foreach (var cmd in cmdTranslator.cmdToAction)
+            {
+                string outInfo = cmd.Key + ": " + cmd.Value.description;
+                terminalResultBuilder.AddJSFuncInline("addTextToConsole", outInfo);
+            }
+            terminalResultBuilder.AddJSFuncInline("addTextToConsole", "Press button in the left bottom corner to switch between terminal screen and chats.");
             return Json(terminalResultBuilder.Build());
         }
     }

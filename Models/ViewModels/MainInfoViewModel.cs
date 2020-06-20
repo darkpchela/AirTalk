@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace AirTalk.Models.ViewModels
 {
+    //Old, not in use
     public class MainInfoViewModel
     {
         private readonly MainDbContext dbContext;

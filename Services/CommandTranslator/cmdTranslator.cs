@@ -9,19 +9,54 @@ namespace AirTalk.Services.CommandTranslator
 {
     public class cmdTranslator
     {
-        private static Dictionary<string, cmdInfo> cmdToAction { get; set; }
+        public static Dictionary<string, cmdInfo> cmdToAction { get; private set; }
         static cmdTranslator()
         {
             cmdToAction = new Dictionary<string, cmdInfo>();
-            cmdToAction.Add("login", new cmdInfo("Terminal/login", false, true));
-            cmdToAction.Add("logout", new cmdInfo("Terminal/logout", false, true));
-            cmdToAction.Add("chatmode", new cmdInfo("Terminal/chatmode", true, false,
-                new Dictionary<string, Type> { { "state", typeof(bool) } }));
-            cmdToAction.Add("select", new cmdInfo("Terminal/select", false, false,
-                new Dictionary<string, Type> { { "themeId", typeof(int) } }));
-            cmdToAction.Add("clear", new cmdInfo("Terminal/clear", false, true));
-            cmdToAction.Add("create", new cmdInfo("Terminal/createTheme", false, true));
-            cmdToAction.Add("reg", new cmdInfo("Terminal/registration", false, true));
+            cmdToAction.Add("login", new cmdInfo(
+                "Terminal/login",
+                "Type 'login' to get login-form."
+                ));
+
+            cmdToAction.Add("logout", new cmdInfo(
+                "Terminal/logout",
+                "Type 'logout' to logout. Thanks, capitan."
+                ));
+
+            //cmdToAction.Add("chatmode", new cmdInfo(
+            //    "Terminal/chatmode",
+            //    true,
+            //    false,
+            //    new Dictionary<string, Type> { { "state", typeof(bool) } }
+            //    ));
+
+            cmdToAction.Add("select", new cmdInfo(
+                "Terminal/select",
+                false,
+                false,
+                new Dictionary<string, Type> { { "themeId", typeof(int) } },
+                "Type 'select' to see all themes. Type 'select [id]' to add theme[id] to chats."
+                ));
+
+            cmdToAction.Add("clear", new cmdInfo(
+                "Terminal/clear",
+                "Type 'clear' to clear your terminal screen or remove form."
+                ));
+
+            cmdToAction.Add("create", new cmdInfo(
+                "Terminal/createTheme",
+                "Type 'create' to get theme-cretor form."
+                ));
+
+            cmdToAction.Add("reg", new cmdInfo(
+                "Terminal/registration",
+                "Type 'reg' to get registration form."
+                ));
+
+            cmdToAction.Add("help", new cmdInfo(
+                "Terminal/help",
+                "Type 'help' to see all commands and there description."
+                ));
         }
         public cmdResponse ReadCommand(string request)
         {

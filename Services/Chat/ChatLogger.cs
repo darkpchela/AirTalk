@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AirTalk
 {
+    //Old, not in use
     public class ChatLogger
     {
         ILogger<ChatLogger> logger;

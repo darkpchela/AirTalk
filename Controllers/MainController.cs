@@ -16,19 +16,13 @@ using System.Text.Json;
 
 namespace AirTalk.Controllers
 {
-    //[Authorize]
     public class MainController : Controller
     {
         private readonly MainDbContext db;
-        private readonly ILogger<MainController> logger;
-        private MainInfoViewModel mainVM;
-        private TerminalResultBuilder resultBuilder;
 
-        public MainController(MainDbContext db, ILogger<MainController> logger, cmdTranslator cmdTranslator, TerminalResultBuilder resultBuilder)
+        public MainController(MainDbContext db, ILogger<MainController> logger)
         {
             this.db = db;
-            this.logger = logger;
-            this.resultBuilder = resultBuilder;
         }
 
         [HttpPost]
@@ -49,30 +43,9 @@ namespace AirTalk.Controllers
             return Json(session);
         }
 
-        //[Route("Main/Index/{id?}")]
         public IActionResult Index()
         {
             return View();
-        }
-
-        [HttpPost]
-        public IActionResult CreateTheme(CreateThemeViewModel themeViewModel)
-        {
-            if (db.themes.Any(t=>t.name==themeViewModel.name))
-            {
-                ModelState.AddModelError(nameof(themeViewModel.name), "Theme with the same name already exists");
-            }
-            if (ModelState.IsValid)
-            {
-                Theme newTheme = themeViewModel.GetDBModel(db.users.First(u=>u.login==User.Identity.Name).id);
-                db.themes.Add(newTheme);
-                db.SaveChanges();
-                resultBuilder.AddAjaxFunc("Terminal/select", new Dictionary<string, string> { { "themeId", newTheme.id.ToString() } } );
-                return Json(resultBuilder.Build());
-
-            }
-            resultBuilder.AddAspView(this, "CreateTheme", themeViewModel);
-            return Json(resultBuilder.Build());
         }
     }
 }

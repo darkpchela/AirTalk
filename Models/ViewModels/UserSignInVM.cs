@@ -12,6 +12,7 @@ namespace AirTalk.Models.ViewModels
         [Required]
         public string loginOrEmail { get; set; }
         [Required]
+        [UIHint("Password")]
         public string password     { get; set; }
     }
 }

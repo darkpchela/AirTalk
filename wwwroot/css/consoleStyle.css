@@ -274,12 +274,21 @@ textarea{
     background-color: rgba(255, 255, 255, 0.199);
 }
 .themebox .theme-body{
+    width:100%;
     padding:2%;
     text-align: center;
     align-content: center;
     overflow-y:auto;
 }
-
+.theme-body div {
+    width: 100%;
+    display: inline-block;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    hyphens: auto;
+}
 
 
 .txt-console-green{
